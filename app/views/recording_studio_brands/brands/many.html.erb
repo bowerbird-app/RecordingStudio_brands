@@ -11,8 +11,10 @@
   <% end %>
 <% end %>
 
-<% if @brand_recordings.any? %>
-  <%= render "recording_studio_brands/brands/list", brand_recordings: @brand_recordings, logos: @logos %>
-<% else %>
-  <%= render FlatPack::EmptyState::Component.new(title: "No brands yet", description: "Add the first one to get going.") %>
+<%= render "recording_studio_brands/brands/list_frame" do %>
+  <% if @brand_recordings.any? %>
+    <%= render "recording_studio_brands/brands/list", brand_recordings: @brand_recordings, logos: @logos %>
+  <% else %>
+    <%= render FlatPack::EmptyState::Component.new(title: "No brands yet", description: "Add the first one to get going.") %>
+  <% end %>
 <% end %>

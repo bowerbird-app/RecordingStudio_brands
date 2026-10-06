@@ -78,7 +78,7 @@ Other gems can read `brand_recording.recordable` and follow the recording parent
 
 The engine mounts at `/recording_studio_brands`.
 
-- `GET /recordings/:recording_id/brands` is the brand home. One mount shows the brand or an empty state. Many mounts show the list.
+- `GET /recordings/:recording_id/brands` is the brand home. One mount shows the brand or an empty state. Many mounts show the list in a card, in the first column of a two-column grid.
 - A one mount that already holds several brands lists them with a warning and hides Add.
 - Add and edit save through `record` and `revise`.
 - The brand page is titled Brand. The name and the other details sit in one card. The edit screen has one button that replaces the logo.

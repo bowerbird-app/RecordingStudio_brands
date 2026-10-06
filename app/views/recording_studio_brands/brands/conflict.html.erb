@@ -10,4 +10,6 @@
   class: "mb-6"
 ) %>
 
-<%= render "recording_studio_brands/brands/list", brand_recordings: @brand_recordings, logos: @logos %>
+<%= render "recording_studio_brands/brands/list_frame" do %>
+  <%= render "recording_studio_brands/brands/list", brand_recordings: @brand_recordings, logos: @logos %>
+<% end %>

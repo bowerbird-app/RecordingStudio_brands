@@ -37,7 +37,9 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", text: "Brands"
     assert_includes page_text, "A brand is a distinct identity owned by a company. A company can have one brand or manage multiple brands."
-    assert_select "h3", text: "No brands yet"
+    assert_select ".md\\:grid-cols-2" do
+      assert_select "h3", text: "No brands yet"
+    end
     assert_select "a[href=?]", brands.new_recording_brand_path(@workspace), text: "+ Brand"
   end
 
@@ -148,6 +150,7 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     assert_equal [ "Nike", "Dove", "Acme Coffee" ], list_links.map { |link| link.at("p").text }
     assert_equal [ nike, dove, acme ].map { |recording| brands.brand_path(recording) }, list_links.pluck("href")
     assert_select "h1", text: "Brands"
+    assert_select ".md\\:grid-cols-2 ul[role=list]"
     assert_select "a[href=?]", brands.new_recording_brand_path(@folder), text: "+ Brand"
 
     post brands.recording_brands_path(@folder), params: { brand: { name: "Ben & Jerry's" } }
@@ -166,6 +169,7 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
 
       assert_response :success
       assert_includes page_text, "This workspace has more than one brand"
+      assert_select ".md\\:grid-cols-2 ul[role=list]"
       assert_equal [ brands.brand_path(nike), brands.brand_path(dove) ], list_links.pluck("href")
       assert_select "a", text: "+ Brand", count: 0
 
