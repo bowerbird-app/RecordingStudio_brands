@@ -22,7 +22,7 @@ Optional fields are length-capped only. There is no format check for website, em
 
 The logo uses Recording Studio Attachable. Revise copies the brand row and drops file attachments on that row, so the logo hangs off the brand recording and stays put.
 
-Trash, duplicate, and manual ordering are off. A trashed brand still fills a one mount, because the limit counts every brand row. Restoring it cannot leave two brands there. Ask if those actions should be switched on.
+Trash, duplicate, and manual ordering are off. A trashed brand still fills a one mount, because the limit counts every brand row. Restoring it cannot leave two brands there.
 
 ## How a host mounts it
 
@@ -58,6 +58,20 @@ brand_recording = project_recording.record(
 project_recording.revise(brand_recording, actor: current_user) { |brand| brand.tagline = "Roasted for the launch" }
 ```
 
+A second `record` under an `allows: :one` parent raises `RecordingStudioBrands::BrandLimitReached` and creates no recording. The error is a `RecordingStudio::InvalidParent`, so code that rescues placement errors catches it. `revise` never raises it. If you rescue the error inside your own transaction, roll that transaction back. Otherwise the Brand row that `record` saved stays without a recording.
+
+Read a parent's brands with `RecordingStudioBrands::Mount.for`. It returns `nil` when the parent class does not include `Brand.to`.
+
+```ruby
+case RecordingStudioBrands::Mount.for(parent_recording)
+in RecordingStudioBrands::Mount::One => mount then mount.brand_recording
+in RecordingStudioBrands::Mount::Many => mount then mount.brand_recordings
+in nil then nil
+end
+```
+
+`brand_recordings` lists every brand recording under the parent, oldest first, trashed ones included. `brand_recording` returns the brand recording or `nil`. It raises `RecordingStudioBrands::MountConflict` when a one mount holds several brands, for example after the parent class changed from `allows: :many`.
+
 Other gems can read `brand_recording.recordable` and follow the recording parent. They should not assume the parent is a Company, a Person, or a Workspace.
 
 ## Screens
@@ -65,6 +79,7 @@ Other gems can read `brand_recording.recordable` and follow the recording parent
 The engine mounts at `/recording_studio_brands`.
 
 - `GET /recordings/:recording_id/brands` is the brand home. One mount shows the brand or an empty state. Many mounts show the list.
+- A one mount that already holds several brands lists them with a warning and hides Add.
 - Add and edit save through `record` and `revise`.
 - The logo form replaces the current image.
 
