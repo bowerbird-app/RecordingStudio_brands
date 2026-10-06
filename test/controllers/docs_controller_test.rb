@@ -77,6 +77,9 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     folder_recording = record_child(folder, root_recording, root_recording)
     page = Page.create!(title: "API")
     record_child(page, root_recording, folder_recording)
+    root_recording.record(RecordingStudioBrands::Brand, parent_recording: root_recording, actor: @user) do |brand|
+      brand.name = "Tree Brand"
+    end
 
     get docs_recordings_tree_path
 
@@ -85,7 +88,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Workspace: Tree Workspace"
     assert_includes response.body, "Folder: Reference"
     assert_includes response.body, "Page: API"
-    assert_includes response.body, "Brand: Taylor Swift"
+    assert_includes response.body, "Brand: Tree Brand"
     refute_includes response.body, "Access boundary"
     assert_select "div[role='tree']", count: 1
     assert_select "[role='treeitem']", minimum: 3
