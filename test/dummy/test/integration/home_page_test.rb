@@ -19,7 +19,7 @@ class HomePageTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal(
       {
-        "/recording_studio_brands/recordings/#{studio.id}/brands" => "Home Studio Workspace One brand",
+        "/recording_studio_brands/recordings/#{studio.id}/brands" => "Home Studio Workspace Many brands",
         "/recording_studio_brands/recordings/#{docs.id}/brands" => "Home Docs Folder Many brands"
       },
       css_select("a[href^='/recording_studio_brands/']").to_h { |link| [ link["href"], link.text.squish ] }

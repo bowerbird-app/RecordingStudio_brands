@@ -77,6 +77,18 @@ begin
     email: "hello@taylorswift.com",
     phone: "+1 615 555 0100"
   })
+  ensure_brand.call(root_recording, {
+    name: "Dove",
+    tagline: "Real beauty",
+    website_url: "https://www.dove.com"
+  })
+  ensure_brand.call(root_recording, {
+    name: "Acme Coffee",
+    tagline: "Roasted for the launch",
+    description: "The coffee brand for the Acme launch.",
+    website_url: "https://acme.example/coffee",
+    email: "hello@acme.example"
+  })
   ensure_brand.call(folder_recording, {
     name: "Nike",
     tagline: "Just Do It",
@@ -99,7 +111,7 @@ ensure
 end
 
 puts "Seeded: admin@admin.com / Password"
-puts "Seeded: Workspace '#{workspace.name}' with Taylor Swift"
+puts "Seeded: Workspace '#{workspace.name}' with Taylor Swift, Dove, and Acme Coffee"
 puts "Seeded: Workspace '#{accessible_workspace.name}' with no brand yet"
 puts "Seeded: Workspace '#{private_workspace.name}' with no access for the admin"
 puts "Seeded: Folder '#{folder.name}' with Nike, Dove, and Acme Coffee"

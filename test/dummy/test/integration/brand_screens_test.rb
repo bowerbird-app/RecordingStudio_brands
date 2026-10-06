@@ -29,14 +29,16 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     @folder = @workspace.record(Folder, actor: @owner) { |folder| folder.name = "Campaigns" }
   end
 
-  test "an empty workspace offers to add its one brand" do
+  test "an empty workspace lists brands and offers to add another" do
     sign_in @owner
 
     get brands.recording_brands_path(@workspace)
 
     assert_response :success
-    assert_select "h3", text: "No brand yet"
-    assert_select "a[href=?]", brands.new_recording_brand_path(@workspace), text: "Add brand"
+    assert_select "h1", text: "Brands"
+    assert_includes page_text, "A brand is a distinct identity owned by a company. A company can have one brand or manage multiple brands."
+    assert_select "h3", text: "No brands yet"
+    assert_select "a[href=?]", brands.new_recording_brand_path(@workspace), text: "+ Brand"
   end
 
   test "adding the workspace brand saves every field and shows it in place of the empty state" do
@@ -48,7 +50,8 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
 
     post brands.recording_brands_path(@workspace), params: { brand: TAYLOR }
 
-    assert_redirected_to brands.recording_brands_path(@workspace)
+    taylor = brand_recordings_under(@workspace).sole
+    assert_redirected_to brands.brand_path(taylor)
     assert_equal "Brand saved.", flash[:notice]
     assert_equal TAYLOR, brand_recordings_under(@workspace).sole.recordable.slice(*TAYLOR.keys).symbolize_keys
 
@@ -71,26 +74,30 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
   end
 
   test "a full workspace sends Add back to its brand" do
-    record_brand(@workspace, "Taylor Swift")
-    sign_in @owner
+    with_brand_options(Workspace, allows: :one) do
+      record_brand(@workspace, "Taylor Swift")
+      sign_in @owner
 
-    get brands.new_recording_brand_path(@workspace)
+      get brands.new_recording_brand_path(@workspace)
 
-    assert_redirected_to brands.recording_brands_path(@workspace)
-    assert_equal "This workspace already has a brand.", flash[:alert]
+      assert_redirected_to brands.recording_brands_path(@workspace)
+      assert_equal "This workspace already has a brand.", flash[:alert]
+    end
   end
 
   test "a second brand posted to a full workspace saves nothing" do
-    record_brand(@workspace, "Taylor Swift")
-    sign_in @owner
+    with_brand_options(Workspace, allows: :one) do
+      record_brand(@workspace, "Taylor Swift")
+      sign_in @owner
 
-    assert_no_difference -> { RecordingStudioBrands::Brand.count } do
-      post brands.recording_brands_path(@workspace), params: { brand: { name: "Taylor's Version" } }
+      assert_no_difference -> { RecordingStudioBrands::Brand.count } do
+        post brands.recording_brands_path(@workspace), params: { brand: { name: "Taylor's Version" } }
+      end
+
+      assert_redirected_to brands.recording_brands_path(@workspace)
+      assert_equal "This workspace already has a brand.", flash[:alert]
+      assert_equal [ "Taylor Swift" ], brand_names_under(@workspace)
     end
-
-    assert_redirected_to brands.recording_brands_path(@workspace)
-    assert_equal "This workspace already has a brand.", flash[:alert]
-    assert_equal [ "Taylor Swift" ], brand_names_under(@workspace)
   end
 
   test "editing the workspace brand revises it in place" do
@@ -103,7 +110,7 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
 
     patch brands.brand_path(taylor), params: { brand: { name: "Taylor Swift", tagline: "Midnights" } }
 
-    assert_redirected_to brands.recording_brands_path(@workspace)
+    assert_redirected_to brands.brand_path(taylor)
     assert_equal "Brand saved.", flash[:notice]
     assert_equal [ taylor.id ], brand_recordings_under(@workspace).map(&:id)
     assert_equal "Midnights", RecordingStudio::Recording.find(taylor.id).recordable.tagline
@@ -140,7 +147,8 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
 
     assert_equal [ "Nike", "Dove", "Acme Coffee" ], list_links.map { |link| link.at("p").text }
     assert_equal [ nike, dove, acme ].map { |recording| brands.brand_path(recording) }, list_links.pluck("href")
-    assert_select "a[href=?]", brands.new_recording_brand_path(@folder), text: "Add brand"
+    assert_select "h1", text: "Brands"
+    assert_select "a[href=?]", brands.new_recording_brand_path(@folder), text: "+ Brand"
 
     post brands.recording_brands_path(@folder), params: { brand: { name: "Ben & Jerry's" } }
 
@@ -149,22 +157,23 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
   end
 
   test "a workspace left with two brands lists both, warns, and still refuses a third" do
-    nike, dove = with_brand_options(Workspace, allows: :many) do
-      [ record_brand(@workspace, "Nike"), record_brand(@workspace, "Dove") ]
-    end
+    nike = record_brand(@workspace, "Nike")
+    dove = record_brand(@workspace, "Dove")
     sign_in @owner
 
-    get brands.recording_brands_path(@workspace)
+    with_brand_options(Workspace, allows: :one) do
+      get brands.recording_brands_path(@workspace)
 
-    assert_response :success
-    assert_includes page_text, "This workspace has more than one brand"
-    assert_equal [ brands.brand_path(nike), brands.brand_path(dove) ], list_links.pluck("href")
-    assert_select "a", text: "Add brand", count: 0
+      assert_response :success
+      assert_includes page_text, "This workspace has more than one brand"
+      assert_equal [ brands.brand_path(nike), brands.brand_path(dove) ], list_links.pluck("href")
+      assert_select "a", text: "+ Brand", count: 0
 
-    post brands.recording_brands_path(@workspace), params: { brand: { name: "Acme Coffee" } }
+      post brands.recording_brands_path(@workspace), params: { brand: { name: "Acme Coffee" } }
 
-    assert_redirected_to brands.recording_brands_path(@workspace)
-    assert_equal [ "Nike", "Dove" ], brand_names_under(@workspace)
+      assert_redirected_to brands.recording_brands_path(@workspace)
+      assert_equal [ "Nike", "Dove" ], brand_names_under(@workspace)
+    end
   end
 
   test "a viewer sees brands but cannot add or change them" do
@@ -173,14 +182,15 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
 
     get brands.recording_brands_path(@workspace)
 
-    assert_select "h1", text: "Brand"
+    assert_select "h1", text: "Brands"
+    assert_select "a", text: "+ Brand", count: 0
     assert_select "a", text: "Edit brand", count: 0
     assert_select "input[type=file]", count: 0
 
     get brands.recording_brands_path(@folder)
 
     assert_select "h3", text: "No brands yet"
-    assert_select "a", text: "Add brand", count: 0
+    assert_select "a", text: "+ Brand", count: 0
 
     get brands.new_recording_brand_path(@folder)
     assert_response :forbidden
@@ -197,8 +207,12 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     sign_in @owner
     get brands.recording_brands_path(@workspace)
 
-    assert_select "a[href=?]", brands.edit_brand_path(taylor), text: "Edit brand"
+    assert_select "a[href=?]", brands.new_recording_brand_path(@workspace), text: "+ Brand"
     assert_select "input[type=file]", count: 0
+
+    get brands.brand_path(taylor)
+
+    assert_select "a[href=?]", brands.edit_brand_path(taylor), text: "Edit brand"
 
     get brands.edit_brand_path(taylor)
 

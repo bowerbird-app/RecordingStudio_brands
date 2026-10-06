@@ -50,7 +50,7 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     assert_equal folder_recording, page_recording.parent_recording
     assert_equal root_recording, page_recording.root_recording
     assert_equal 3, Workspace.count
-    assert_equal [ "Taylor Swift" ], brand_names_under(root_recording)
+    assert_equal [ "Taylor Swift", "Dove", "Acme Coffee" ], brand_names_under(root_recording)
     assert_equal [], brand_names_under(accessible_root_recording)
     assert_equal [ "Nike", "Dove", "Acme Coffee" ], brand_names_under(folder_recording)
 

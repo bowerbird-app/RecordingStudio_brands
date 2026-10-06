@@ -8,11 +8,14 @@ class BrandGuardConcurrencyTest < ActiveSupport::TestCase
   self.use_transactional_tests = false
 
   setup do
+    @brand_options = RecordingStudio.capability_options(:brand, for: Workspace)
+    RecordingStudio.set_capability_options(:brand, on: Workspace, allows: :one)
     @workspace = RecordingStudio.root_recording_for(Workspace.create!(name: "Concurrent Brand Workspace"))
     @brands = [ "Nike", "Dove" ].map { |name| RecordingStudioBrands::Brand.create!(name:) }
   end
 
   teardown do
+    RecordingStudio.set_capability_options(:brand, on: Workspace, **@brand_options) if @brand_options
     recording_ids = RecordingStudio::Recording.unscoped.where(root_recording_id: @workspace.id).ids
     RecordingStudio::Event.where(recording_id: recording_ids).delete_all
     RecordingStudio::Recording.unscoped.where(id: recording_ids).where.not(id: @workspace.id).delete_all

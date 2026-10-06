@@ -43,7 +43,7 @@ class BrandLogoTest < ActionDispatch::IntegrationTest
 
     patch logo_path(@taylor), params: { logo: image_upload("taylor.png") }
 
-    assert_redirected_to recording_studio_brands.recording_brands_path(@workspace)
+    assert_redirected_to recording_studio_brands.brand_path(@taylor)
     assert_equal "taylor.png", Logo.recording_for(@taylor).recordable.original_filename
   end
 

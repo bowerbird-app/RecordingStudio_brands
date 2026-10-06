@@ -10,40 +10,47 @@ class BrandMountsTest < ActiveSupport::TestCase
     @page = @workspace.record(Page, actor: @actor) { |page| page.title = "Press" }
   end
 
-  test "a workspace holds one brand" do
-    brand_recording = record_brand(@workspace, "Taylor Swift")
+  test "a workspace holds many brands" do
+    record_brand(@workspace, "Taylor Swift")
+    record_brand(@workspace, "Dove")
 
-    assert_equal [ "Taylor Swift" ], brand_names_under(@workspace)
-    assert_equal brand_recording, RecordingStudioBrands::Mount.for(@workspace).brand_recording
+    assert_equal [ "Taylor Swift", "Dove" ], brand_names_under(@workspace)
+    assert_kind_of RecordingStudioBrands::Mount::Many, RecordingStudioBrands::Mount.for(@workspace)
   end
 
-  test "a second brand under a workspace raises and records nothing" do
-    record_brand(@workspace, "Taylor Swift")
+  test "a second brand under a one-brand workspace raises and records nothing" do
+    with_brand_options(Workspace, allows: :one) do
+      record_brand(@workspace, "Taylor Swift")
 
-    error = assert_no_difference -> { RecordingStudioBrands::Brand.count } do
+      error = assert_no_difference -> { RecordingStudioBrands::Brand.count } do
+        assert_raises(RecordingStudioBrands::BrandLimitReached) { record_brand(@workspace, "Taylor's Version") }
+      end
+
+      assert_equal "Workspace allows one brand and already has one. Revise that brand instead.", error.message
+      assert_equal [ "Taylor Swift" ], brand_names_under(@workspace)
+    end
+  end
+
+  test "a direct Recording.create! of a second one-brand workspace brand raises" do
+    with_brand_options(Workspace, allows: :one) do
+      record_brand(@workspace, "Taylor Swift")
+      second_brand = RecordingStudioBrands::Brand.create!(name: "Taylor's Version")
+
+      assert_raises(RecordingStudioBrands::BrandLimitReached) do
+        RecordingStudio::Recording.create!(parent_recording: @workspace, recordable: second_brand)
+      end
+
+      assert_equal [ "Taylor Swift" ], brand_names_under(@workspace)
+    end
+  end
+
+  test "a trashed brand still fills a one-brand workspace" do
+    with_brand_options(Workspace, allows: :one) do
+      record_brand(@workspace, "Taylor Swift").update!(trashed_at: Time.current)
+
       assert_raises(RecordingStudioBrands::BrandLimitReached) { record_brand(@workspace, "Taylor's Version") }
+      assert_equal [ "Taylor Swift" ], brand_names_under(@workspace)
     end
-
-    assert_equal "Workspace allows one brand and already has one. Revise that brand instead.", error.message
-    assert_equal [ "Taylor Swift" ], brand_names_under(@workspace)
-  end
-
-  test "a direct Recording.create! of a second workspace brand raises" do
-    record_brand(@workspace, "Taylor Swift")
-    second_brand = RecordingStudioBrands::Brand.create!(name: "Taylor's Version")
-
-    assert_raises(RecordingStudioBrands::BrandLimitReached) do
-      RecordingStudio::Recording.create!(parent_recording: @workspace, recordable: second_brand)
-    end
-
-    assert_equal [ "Taylor Swift" ], brand_names_under(@workspace)
-  end
-
-  test "a trashed workspace brand still fills the workspace" do
-    record_brand(@workspace, "Taylor Swift").update!(trashed_at: Time.current)
-
-    assert_raises(RecordingStudioBrands::BrandLimitReached) { record_brand(@workspace, "Taylor's Version") }
-    assert_equal [ "Taylor Swift" ], brand_names_under(@workspace)
   end
 
   test "revise and revert keep the workspace brand on one recording" do
@@ -138,18 +145,19 @@ class BrandMountsTest < ActiveSupport::TestCase
   end
 
   test "a workspace left with two brands refuses to pick one and refuses a third" do
-    with_brand_options(Workspace, allows: :many) do
-      record_brand(@workspace, "Nike")
-      record_brand(@workspace, "Dove")
+    record_brand(@workspace, "Nike")
+    record_brand(@workspace, "Dove")
+
+    with_brand_options(Workspace, allows: :one) do
+      error = assert_raises(RecordingStudioBrands::MountConflict) do
+        RecordingStudioBrands::Mount.for(@workspace).brand_recording
+      end
+
+      assert_equal "Workspace allows one brand but has several. Remove the extra brands before reading the brand.",
+                   error.message
+      assert_raises(RecordingStudioBrands::BrandLimitReached) { record_brand(@workspace, "Acme Coffee") }
     end
 
-    error = assert_raises(RecordingStudioBrands::MountConflict) do
-      RecordingStudioBrands::Mount.for(@workspace).brand_recording
-    end
-
-    assert_equal "Workspace allows one brand but has several. Remove the extra brands before reading the brand.",
-                 error.message
-    assert_raises(RecordingStudioBrands::BrandLimitReached) { record_brand(@workspace, "Acme Coffee") }
     assert_equal [ "Nike", "Dove" ], brand_names_under(@workspace)
   end
 

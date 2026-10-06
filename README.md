@@ -141,9 +141,9 @@ A later host can place Press Centre under a Brand, then Press Kit and Messages u
 
 ## Dummy app
 
-`test/dummy` is a host that is not Company or Person. Workspace allows one brand. Folder allows many. Page allows none.
+`test/dummy` is a host that is not Company or Person. Workspace and Folder both allow many brands. Page allows none. A host that wants a single brand still opts in with `allows: :one`.
 
-Sign in as `admin@admin.com` / `Password`. Studio Workspace holds Taylor Swift. Product Docs holds Nike, Dove, and Acme Coffee. Client Workspace is empty, so you can see Add. Private Workspace is not shared with that user.
+Sign in as `admin@admin.com` / `Password`. Studio Workspace holds Taylor Swift, Dove, and Acme Coffee. Product Docs holds Nike, Dove, and Acme Coffee. Client Workspace is empty, so you can add the first brand. Private Workspace is not shared with that user.
 
 ```bash
 cd test/dummy

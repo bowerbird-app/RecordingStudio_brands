@@ -2,7 +2,7 @@
 
 This Rails app exists to try Brand inside a host that is not Company or Person.
 
-Workspace allows one brand. Folder allows many. Page allows none. Studio Workspace is seeded with Taylor Swift. Product Docs is seeded with Nike, Dove, and Acme Coffee. Client Workspace is empty. Private Workspace is not shared with the seeded admin.
+Workspace and Folder allow many brands. Page allows none. Studio Workspace is seeded with Taylor Swift, Dove, and Acme Coffee. Product Docs is seeded with Nike, Dove, and Acme Coffee. Client Workspace is empty. Private Workspace is not shared with the seeded admin.
 
 ## What It Covers
 
@@ -40,7 +40,7 @@ Then open the app and sign in with:
 
 ## Why This App Exists
 
-Use this app to click through one brand and many brands before wiring Brand into another host. If a layout, route, asset source, or Recording Studio initializer change breaks here, fix it in this gem before a host copies the pattern.
+Use this app to click through a list of brands before wiring Brand into another host. If a layout, route, asset source, or Recording Studio initializer change breaks here, fix it in this gem before a host copies the pattern.
 
 Authenticated pages use Recording Studio's shared default layout. Devise sign-in keeps `layouts/application`.
 
