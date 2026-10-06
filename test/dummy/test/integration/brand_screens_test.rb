@@ -54,7 +54,14 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
 
     follow_redirect!
 
-    assert_select "h1", text: "Taylor Swift"
+    assert_select "h1", text: "Brand"
+    assert_select "h2", text: "Taylor Swift"
+    assert_select ".max-w-2xl", count: 1
+    assert_select "input[type=file]", count: 0
+    assert_select ".max-w-2xl" do
+      assert_select "h2", text: "Taylor Swift"
+      assert_select "a[href=?]", "https://www.taylorswift.com"
+    end
     assert_includes page_text, "The Eras Tour"
     assert_includes page_text, "Singer and songwriter."
     assert_select "a[href=?]", "https://www.taylorswift.com", text: "https://www.taylorswift.com"
@@ -166,7 +173,7 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
 
     get brands.recording_brands_path(@workspace)
 
-    assert_select "h1", text: "Taylor Swift"
+    assert_select "h1", text: "Brand"
     assert_select "a", text: "Edit brand", count: 0
     assert_select "input[type=file]", count: 0
 
@@ -191,7 +198,14 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     get brands.recording_brands_path(@workspace)
 
     assert_select "a[href=?]", brands.edit_brand_path(taylor), text: "Edit brand"
-    assert_select "form[action=?] input[type=file][name=logo]", brands.brand_logo_path(taylor)
+    assert_select "input[type=file]", count: 0
+
+    get brands.edit_brand_path(taylor)
+
+    assert_select "form[action=?] input[type=file][name=logo]", brands.brand_logo_path(taylor), count: 1
+    assert_select "button", text: "Add logo", count: 1
+    assert_select "button", text: "Upload logo", count: 0
+    assert_select "button", text: "Replace logo", count: 0
   end
 
   test "a page has no brand screens" do
@@ -256,7 +270,9 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     sign_in @viewer
     get brands.brand_path(nike)
 
+    assert_select "h1", text: "Brand"
     assert_select "img", count: 0
+    assert_select "input[type=file]", count: 0
 
     sign_in @owner
     patch brands.brand_logo_path(nike), params: {
@@ -270,7 +286,18 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     get brands.brand_path(nike)
 
     assert_select "img[src=?]", logo_src
+    assert_select "input[type=file]", count: 0
 
+    get brands.edit_brand_path(nike)
+    assert_response :forbidden
+
+    sign_in @owner
+    get brands.edit_brand_path(nike)
+
+    assert_select "button", text: "Change logo", count: 1
+    assert_select "input[type=file][name=logo]", count: 1
+
+    sign_in @viewer
     get brands.recording_brands_path(@folder)
 
     assert_select "li img[src=?]", logo_src

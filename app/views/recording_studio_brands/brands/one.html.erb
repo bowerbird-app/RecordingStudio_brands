@@ -1,9 +1,8 @@
-<% if @brand_recording %>
-  <% recording_studio_page_nav(title: @brand_recording.recordable.name) %>
+<% recording_studio_page_nav(title: "Brand") %>
 
+<% if @brand_recording %>
   <%= render "recording_studio_brands/brands/brand", brand_recording: @brand_recording, logo: @logo %>
 <% else %>
-  <% recording_studio_page_nav(title: "Brand") %>
   <% editable = can_edit?(@parent) %>
 
   <%= render FlatPack::PageTitle::Component.new(title: "Brand", subtitle: @parent.name) %>

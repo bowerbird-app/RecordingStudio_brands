@@ -81,7 +81,7 @@ The engine mounts at `/recording_studio_brands`.
 - `GET /recordings/:recording_id/brands` is the brand home. One mount shows the brand or an empty state. Many mounts show the list.
 - A one mount that already holds several brands lists them with a warning and hides Add.
 - Add and edit save through `record` and `revise`.
-- The logo form replaces the current image.
+- The brand page is titled Brand. The name and the other details sit in one card. The edit screen has one button that replaces the logo.
 
 Screens call Accessible with the signed-in actor. A viewer can open a brand. Add, edit, and logo upload need edit access. Brand does not enable its own access capability. Access is inherited from the recording the host already authorized.
 

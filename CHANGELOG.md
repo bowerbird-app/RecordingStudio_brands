@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `RecordingStudioBrands::Brand`, a public identity with name, tagline, description, website, email, phone, and one logo.
 - `RecordingStudio::Capabilities::Brand.to(allows: :one)` and `allows: :many`. The parent class chooses the limit. A one mount refuses a second brand when the recording is created.
-- Screens to view, add, and edit a brand, and to replace its logo.
+- Screens to view, add, and edit a brand. The brand page shows the details in one card. The edit screen has one button to replace the logo.
 - Install and migration generators, plus a dummy host where a workspace holds one brand and a folder holds many.
 
 ### Upgrade
