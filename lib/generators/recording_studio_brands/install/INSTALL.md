@@ -1,14 +1,3 @@
-===============================================================================
+RecordingStudioBrands install complete.
 
-RecordingStudioBrands has been installed successfully!
-
-The engine has been mounted at /recording_studio_brands in your application.
-
-If you use Tailwind CSS:
-1. Run 'bin/rails tailwindcss:build' to rebuild your CSS with RecordingStudioBrands styles
-
-To use the engine:
-1. Start your Rails server
-2. Visit http://localhost:3000/recording_studio_brands
-
-===============================================================================
+The generator prints `lib/generators/recording_studio_brands/install/templates/INSTALL.md`. Keep that file as the host setup guide. It covers migrations, auth, layout, and current actor integration, `recording_studio_recordable`, the type string `RecordingStudioBrands::Brand`, and `allows: :one` or `allows: :many`.

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0] - 2026-10-06
 
-First release of RecordingStudioBrands, started from the Recording Studio addon template.
+### Added
+
+- `RecordingStudioBrands::Brand`, a public identity with name, tagline, description, website, email, phone, and one logo.
+- `RecordingStudio::Capabilities::Brand.to(allows: :one)` and `allows: :many`. The parent class chooses the limit. A one mount refuses a second brand when the recording is created.
+- Screens to view, add, and edit a brand, and to replace its logo.
+- Install and migration generators, plus a dummy host where a workspace holds one brand and a folder holds many.
+
+### Upgrade
+
+0.1.0 is the first release. There is no earlier brand schema to migrate.
+
+1. Add `recording_studio_brands` and `recording_studio_attachable`.
+2. Run `bin/rails generate recording_studio_attachable:install`, `bin/rails generate recording_studio_attachable:migrations`, `bin/rails generate recording_studio_brands:install`, and `bin/rails generate recording_studio_brands:migrations`.
+3. Run `bin/rails db:migrate`.
+4. Add `"RecordingStudioBrands::Brand"` and `"RecordingStudioAttachable::Attachment"` to `config.recordable_types`.
+5. Include `RecordingStudio::Capabilities::Brand.to(allows: :one)` or `allows: :many` on each parent class that should hold brands. Brand does not pick a default, and it does not name Company, Person, Workspace, or any other parent.
+6. Rebuild Tailwind CSS so the brand screens are styled.
+
+Company, Person, Location, Press Centre, and Press Kit are not part of this gem. Trash, duplicate, and manual ordering stay off.
 
 [0.1.0]: https://github.com/bowerbird-app/RecordingStudio_brands/releases/tag/v0.1.0
