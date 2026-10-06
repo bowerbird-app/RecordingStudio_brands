@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  mount RecordingStudioAttachable::Engine, at: "/recording_studio_attachable"
   devise_for :users
 
   # RecordingStudio engine is data/API-focused and has no browser root route.
@@ -6,6 +7,7 @@ Rails.application.routes.draw do
   get "/recording_studio", to: redirect("/"), as: nil
   mount RecordingStudio::Engine, at: "/recording_studio"
   mount RecordingStudioRootSwitchable::Engine, at: "/recording_studio_root_switchable"
+  mount RecordingStudioBrands::Engine, at: "/recording_studio_brands"
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

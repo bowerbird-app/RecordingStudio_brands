@@ -16,6 +16,16 @@ GIT
       recording_studio (~> 4.2)
 
 GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_attachable.git
+  revision: dadc3c53997c700bd80f5281e49fba86a26f8104
+  tag: v0.7.1
+  specs:
+    recording_studio_attachable (0.7.0)
+      flat_pack (>= 0.1.135)
+      rails (~> 8.1.0)
+      recording_studio (~> 4.2)
+
+GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_root_switchable.git
   revision: 86c5216493899b5f578c26801b8cbb07a4344515
   tag: v0.5.1
@@ -43,6 +53,8 @@ PATH
     recording_studio_brands (0.1.0)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
+      recording_studio_accessible (~> 0.10)
+      recording_studio_attachable (~> 0.7)
 
 GEM
   remote: https://rubygems.org/
@@ -461,6 +473,7 @@ DEPENDENCIES
   rails (~> 8.1.1)
   recording_studio!
   recording_studio_accessible!
+  recording_studio_attachable!
   recording_studio_brands!
   recording_studio_root_switchable!
   rubocop-rails-omakase
@@ -589,6 +602,7 @@ CHECKSUMS
   rdoc (8.1.0) sha256=befc37880a5cfd36dcb176c748b5fd5ee39dd3536a75e81824e4972ce230f60a
   recording_studio (4.2.1)
   recording_studio_accessible (0.10.1)
+  recording_studio_attachable (0.7.0)
   recording_studio_brands (0.1.0)
   recording_studio_root_switchable (0.5.1)
   regexp_parser (2.13.1) sha256=5aedb6b7c35688f51e86eef17a15374dfd287c83f4ca644b2c5f3ec50a33b44b
