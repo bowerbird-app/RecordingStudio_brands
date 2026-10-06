@@ -50,6 +50,9 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     assert_equal folder_recording, page_recording.parent_recording
     assert_equal root_recording, page_recording.root_recording
     assert_equal 3, Workspace.count
+    assert_equal [ "Taylor Swift" ], brand_names_under(root_recording)
+    assert_equal [], brand_names_under(accessible_root_recording)
+    assert_equal [ "Nike", "Dove", "Acme Coffee" ], brand_names_under(folder_recording)
 
     assert_no_difference -> { User.count } do
       assert_no_difference -> { RecordingStudio::Recording.count } do
@@ -59,5 +62,11 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     assert_nil Current.actor
   ensure
     Current.actor = nil
+  end
+
+  private
+
+  def brand_names_under(parent_recording)
+    RecordingStudioBrands::Mount.for(parent_recording).brand_recordings.map { |brand_recording| brand_recording.recordable.name }
   end
 end

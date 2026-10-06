@@ -26,15 +26,20 @@ class InstallGeneratorTest < Minitest::Test
     )
   end
 
+  def test_mount_engine_mounts_at_recording_studio_brands_by_default
+    assert_equal <<~RUBY, routes_after_mount_engine
+      Rails.application.routes.draw do
+        mount RecordingStudioBrands::Engine, at: "/recording_studio_brands"
+      end
+    RUBY
+  end
+
   def test_mount_engine_uses_configured_mount_path
-    generator = build_generator("/tmp", mount_path: "/addons/recording")
-    routes = []
-
-    generator.stub(:route, ->(value) { routes << value }) do
-      generator.mount_engine
-    end
-
-    assert_equal ["mount RecordingStudioBrands::Engine, at: \"/addons/recording\""], routes
+    assert_equal <<~RUBY, routes_after_mount_engine(mount_path: "/addons/recording")
+      Rails.application.routes.draw do
+        mount RecordingStudioBrands::Engine, at: "/addons/recording"
+      end
+    RUBY
   end
 
   def test_add_tailwind_source_injects_engine_and_flatpack_sources
@@ -146,6 +151,18 @@ class InstallGeneratorTest < Minitest::Test
   end
 
   private
+
+  def routes_after_mount_engine(options = {})
+    with_temp_app do |dir|
+      routes_path = File.join(dir, "config/routes.rb")
+      FileUtils.mkdir_p(File.dirname(routes_path))
+      File.write(routes_path, "Rails.application.routes.draw do\nend\n")
+
+      capture_io { build_generator(dir, options).mount_engine }
+
+      File.read(routes_path)
+    end
+  end
 
   def assert_tailwind_sources_present(css)
     tailwind_source_lines.each do |line|
