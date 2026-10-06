@@ -1,0 +1,20 @@
+<% recording_studio_page_nav(title: "Brand") %>
+
+<% if @brand_recording %>
+  <%= render "recording_studio_brands/brands/brand", brand_recording: @brand_recording, logo: @logo %>
+<% else %>
+  <% editable = can_edit?(@parent) %>
+
+  <%= render FlatPack::PageTitle::Component.new(title: "Brand", subtitle: @parent.name) %>
+
+  <%= render FlatPack::EmptyState::Component.new(
+    title: "No brand yet",
+    description: ("Give #{@parent.name} its public face." if editable)
+  ) do |empty| %>
+    <% if editable %>
+      <% empty.slot do %>
+        <%= render FlatPack::Button::Component.new(text: "Add brand", style: :primary, href: new_recording_brand_path(@parent)) %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

@@ -11,6 +11,9 @@ rescue LoadError
   # bundle does not load that gem; only the gem suite stubs methods.
 end
 require "rails"
+# Hosts load Active Record before Bundler.require, and Attachable names it
+# when it is required.
+require "active_record"
 require "active_support/time"
 Time.zone ||= "UTC"
-require "gem_template"
+require "recording_studio_brands"

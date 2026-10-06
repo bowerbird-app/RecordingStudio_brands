@@ -1,0 +1,5 @@
+<% recording_studio_page_nav(title: "Add brand", page_nav_anchor_url: recording_brands_path(@parent)) %>
+
+<%= render FlatPack::PageTitle::Component.new(title: "Add brand", subtitle: "You can add a logo once it's saved.") %>
+
+<%= render "recording_studio_brands/brands/form", brand: @brand, url: recording_brands_path(@parent), method: :post %>

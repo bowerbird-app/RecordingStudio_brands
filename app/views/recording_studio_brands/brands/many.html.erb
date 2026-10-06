@@ -1,0 +1,20 @@
+<% recording_studio_page_nav(title: "Brands") %>
+
+<%= render FlatPack::PageTitle::Component.new(
+  title: "Brands",
+  subtitle: "A brand is a distinct identity owned by a company. A company can have one brand or manage multiple brands."
+) do |title| %>
+  <% if can_edit?(@parent) %>
+    <% title.slot do %>
+      <%= render FlatPack::Button::Component.new(text: "+ Brand", style: :primary, href: new_recording_brand_path(@parent)) %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render "recording_studio_brands/brands/list_frame" do %>
+  <% if @brand_recordings.any? %>
+    <%= render "recording_studio_brands/brands/list", brand_recordings: @brand_recordings %>
+  <% else %>
+    <%= render FlatPack::EmptyState::Component.new(title: "No brands yet", description: "Add the first one to get going.") %>
+  <% end %>
+<% end %>

@@ -1,0 +1,47 @@
+<%# locals: (brand_recording:, logo:) -%>
+<% brand = brand_recording.recordable %>
+<% editable = can_edit?(brand_recording) %>
+<% rows = brand_contact_rows(brand) %>
+
+<%= render FlatPack::PageTitle::Component.new(title: "Brand", subtitle: @parent.name) do |title| %>
+  <% if editable %>
+    <% title.slot do %>
+      <%= render FlatPack::Button::Component.new(text: "Edit brand", style: :primary, href: edit_brand_path(brand_recording)) %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<%= render FlatPack::Card::Component.new(class: "w-full max-w-2xl") do |card| %>
+  <% card.body do %>
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center gap-4">
+        <%= render "recording_studio_brands/brands/logo_mark", brand:, logo:, size: :xl %>
+        <div class="min-w-0">
+          <h2 class="text-2xl font-semibold leading-tight text-[var(--surface-content-color)]"><%= brand.name %></h2>
+          <% if brand.tagline %>
+            <p class="mt-1 text-sm text-(--surface-muted-content-color)"><%= brand.tagline %></p>
+          <% end %>
+        </div>
+      </div>
+
+      <% if brand.description %>
+        <p class="whitespace-pre-line text-sm leading-6"><%= brand.description %></p>
+      <% end %>
+
+      <% if rows.any? %>
+        <dl class="grid grid-cols-[6rem_1fr] gap-x-4 gap-y-2 text-sm">
+          <% rows.each do |label, text, href| %>
+            <dt class="text-(--surface-muted-content-color)"><%= label %></dt>
+            <dd class="min-w-0 break-words">
+              <% if href %>
+                <%= render FlatPack::Link::Component.new(href:, class: "text-[var(--color-primary)] underline underline-offset-2") do %><%= text %><% end %>
+              <% else %>
+                <%= text %>
+              <% end %>
+            </dd>
+          <% end %>
+        </dl>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

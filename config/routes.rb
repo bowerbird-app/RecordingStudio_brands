@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
-GemTemplate::Engine.routes.draw do
-  root "home#index"
+RecordingStudioBrands::Engine.routes.draw do
+  resources :recordings, only: [] do
+    resources :brands, only: %i[index new create show edit update], shallow: true do
+      resource :logo, only: :update
+    end
+  end
 end

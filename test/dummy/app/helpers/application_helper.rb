@@ -1,4 +1,11 @@
 module ApplicationHelper
+  def brand_mount_label(parent)
+    case RecordingStudioBrands::Mount.for(parent)
+    in RecordingStudioBrands::Mount::One then "One brand"
+    in RecordingStudioBrands::Mount::Many then "Many brands"
+    end
+  end
+
   def dummy_page_nav(title:, back_url: nil, back_label: "Home")
     recording_studio_page_nav(
       title: title,

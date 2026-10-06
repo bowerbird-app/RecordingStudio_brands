@@ -1,172 +1,182 @@
-# GemTemplate
+# RecordingStudioBrands
 
-Internal template for building Rails engine addons on top of Recording Studio 4.x.
+Brand is a public identity a host can record under any recording it allows. A workspace can hold one brand. A folder, project, or event can hold many. The same app can do both. The limit belongs to the parent, and it is enforced when the brand is saved.
 
-## What's Included
+The type string is `RecordingStudioBrands::Brand`.
 
-- **Recording Studio** 4.x gem pinned and configured
-- **Devise** authentication with a pre-seeded admin user
-- **Workspace**, **Folder**, and **Page** recordables seeded into the dummy host app
-- **FlatPack** UI component library for all views
-- **Dummy app** (`test/dummy/`) with a FlatPack sign-in screen, a home page on Recording Studio's default layout, mounted Recording Studio routes, and FlatPack's built-in rounded theme
+Brand does not require a root, a Workspace, a Company, or a Person. This gem does not implement Company, Person, Location, Press Centre, or Press Kit.
 
-Authenticated dummy pages use Recording Studio's shared default layout (`RecordingStudio::UsesDefaultLayout`) plus FlatPack CSS and JS. Devise keeps its own sign-in layout. Dummy `/docs/*` pages stay in the dummy app as a host-app sandbox; they are not the product README.
+## A brand
 
-## Quick Start
+| Field | Rule |
+| --- | --- |
+| Name | Required. 255 characters. |
+| Tagline | Optional. 255 characters. |
+| Description | Optional. 5,000 characters. |
+| Website | Optional. 255 characters. Stored as entered. |
+| Email | Optional. 255 characters. Stored as entered. |
+| Phone | Optional. 255 characters. Stored as entered. |
+| Logo | One image on the brand recording. A new image replaces it. |
 
-### Cursor Cloud Agent (Recommended)
+Optional fields are length-capped only. There is no format check for website, email, or phone.
 
-A Cloud Agent boots this repo into a ready-to-use dev environment with no manual steps. The setup lives in `.cursor/`:
+The logo uses Recording Studio Attachable. Revise copies the brand row and drops file attachments on that row, so the logo hangs off the brand recording and stays put.
 
-- `install.sh` provisions Ruby (pinned by `.ruby-version`), PostgreSQL 16, all gems, the seeded dummy database, and compiled CSS at build time, then fetches Recording Studio skills.
-- `start.sh` starts PostgreSQL on every boot.
-- `environment.json` runs the `rails-server` and `tailwind-watch` terminals and exposes port 3000.
+Trash, duplicate, and manual ordering are off. A trashed brand still fills a one mount, because the limit counts every brand row. Restoring it cannot leave two brands there.
 
-Open port 3000 and sign in at `/users/sign_in`. No environment variables are required — the dummy app's `database.yml` defaults match the provisioned PostgreSQL cluster.
+## How a host mounts it
 
-### GitHub Codespaces
-
-1. Click **Code** → **Codespaces** → **Create codespace**
-2. Wait for setup to complete
-3. Run:
-   ```bash
-   cd test/dummy
-   bin/rails db:setup
-   bin/dev
-   ```
-4. Open port 3000 — you'll land on the dummy app home page and can sign in at `/users/sign_in`
-
-The dummy app is intended as a host-app validation surface for authentication, FlatPack rendering, Tailwind source scanning, and Recording Studio route wiring.
-
-Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
-
-### Login Credentials
-
-| Field    | Value             |
-|----------|-------------------|
-| Email    | admin@admin.com   |
-| Password | Password          |
-
-The login form is prefilled with these credentials for fast access.
-
-### Useful Routes
-
-- `/` — dummy app home page
-- `/users/sign_in` — Devise sign-in page
-- `/recording_studio` — redirect to `/` while the mounted Recording Studio engine remains data/API-focused
-- `/docs/install`, `/docs/config`, `/docs/recordable_types`, `/docs/recordings_tree`, `/docs/gem_views`, `/docs/methods` — dummy-only starter pages
-
-The home page in `test/dummy/app/views/home/index.html.erb` is a starting point for a minimal demo of the gem's primary behavior. Keep deeper explanations on the dummy docs pages, not in this README.
-
-## Architecture
-
-### Root Recording Pattern
-
-This template follows Recording Studio's root recording pattern:
-
-- **Workspace** is the top-level recordable
-- **Folder** and **Page** demonstrate nested recordables under the workspace root
-- Each configured recordable declares `recording_studio_recordable(...)`; strict declaration validation stays enabled
-- A root `RecordingStudio::Recording` wraps the Workspace
-- `Current.actor` is set from `current_user` (Devise) in `ApplicationController`
-
-### Extending Recording Studio
-
-To add new recordable types:
-
-1. Create your model (e.g., `Page`, `Comment`)
-2. Register it in `config/initializers/recording_studio.rb`:
-   ```ruby
-   RecordingStudio.configure do |config|
-     config.recordable_types = ["Workspace", "YourNewType"]
-   end
-   ```
-3. Declare whether the model can be a root and which parents may contain it:
-   ```ruby
-   class YourNewType < ApplicationRecord
-     recording_studio_recordable label: "Your new type",
-                                 root: false,
-                                 allowed_parent_types: ["Workspace", "Folder"]
-   end
-   ```
-4. Validate declarations and create recordings under the root:
-   ```ruby
-   RecordingStudio.validate_recordable_declarations!
-   root_recording = RecordingStudio.root_recording_for(workspace)
-   root_recording.record(YourNewType) do |record|
-     record.title = "Example"
-   end
-   ```
-
-### Recordable Declarations
-
-Every configured ActiveRecord recordable type must declare its hierarchy rules. Declarations are required; they are not version-specific.
-
-- `Workspace` declares `root: true`
-- `Folder` and `Page` declare `root: false, allowed_parent_types: ["Workspace", "Folder"]`
-- `config.require_recordable_declarations = true` remains enabled in the dummy app initializer
-
-Useful console checks:
+Register the type, then opt in on each parent class. There is no default.
 
 ```ruby
-RecordingStudio.validate_recordable_declarations!
-RecordingStudio.root_recordable_types
-RecordingStudio.allowed_parent_types_for("Page")
+RecordingStudio.configure do |config|
+  config.recordable_types += [
+    "RecordingStudioBrands::Brand",
+    "RecordingStudioAttachable::Attachment"
+  ]
+end
+
+class Project < ApplicationRecord
+  recording_studio_recordable label: "Project", root: false
+  include RecordingStudio::Capabilities::Brand.to(allows: :many)
+end
 ```
 
-### Capabilities
+`allows: :one` keeps a single brand. The empty screen offers Add. Once a brand exists, the screen shows it and refuses a second. `allows: :many` shows the list and keeps Add. A parent that never includes `Brand.to` has no brand screens.
 
-Capability mixins are opt-in. Installing this gem does not enable mixins on host types.
+`Brand.to` is required. Passing anything other than `:one` or `:many` fails when the parent class loads.
 
-The dummy Workspace enables Accessible because that addon is bundled:
+Save and revise through Recording Studio. Pass `parent_recording` so a non-root parent is not replaced by the root.
 
 ```ruby
-RecordingStudio.enable_capability(:accessible, on: Workspace)
+brand_recording = project_recording.record(
+  RecordingStudioBrands::Brand,
+  parent_recording: project_recording,
+  actor: current_user
+) { |brand| brand.name = "Acme Coffee" }
+
+project_recording.revise(brand_recording, actor: current_user) { |brand| brand.tagline = "Roasted for the launch" }
 ```
 
-The template also ships one example mixin that uses core 4.2.0's `include_for` factory:
+A second `record` under an `allows: :one` parent raises `RecordingStudioBrands::BrandLimitReached` and creates no recording. The error is a `RecordingStudio::InvalidParent`, so code that rescues placement errors catches it. `revise` never raises it. If you rescue the error inside your own transaction, roll that transaction back. Otherwise the Brand row that `record` saved stays without a recording.
+
+Read a parent's brands with `RecordingStudioBrands::Mount.for`. It returns `nil` when the parent class does not include `Brand.to`.
 
 ```ruby
-include RecordingStudio::Capabilities::Example.to(label: "dummy workspace")
+case RecordingStudioBrands::Mount.for(parent_recording)
+in RecordingStudioBrands::Mount::One => mount then mount.brand_recording
+in RecordingStudioBrands::Mount::Many => mount then mount.brand_recordings
+in nil then nil
+end
 ```
 
-`.to` wraps `RecordingStudio::Capabilities.include_for`. It does not add a fourth verb and it does not call `enable_capability` / `set_capability_options` itself. Folder and Page stay without the example mixin.
+`brand_recordings` lists every brand recording under the parent, oldest first, trashed ones included. `brand_recording` returns the brand recording or `nil`. It raises `RecordingStudioBrands::MountConflict` when a one mount holds several brands, for example after the parent class changed from `allows: :many`.
 
-Use core `RecordingStudio::Hooks` and `RecordingStudio::Services::BaseService`. Do not copy those classes into a new addon.
+Other gems can read `brand_recording.recordable` and follow the recording parent. They should not assume the parent is a Company, a Person, or a Workspace.
 
-### FlatPack UI Components
+## Screens
 
-All views use FlatPack ViewComponents. Available components include:
+The engine mounts at `/recording_studio_brands`.
 
-- `FlatPack::Button::Component` — Buttons (`:primary`, `:secondary`, `:ghost`)
-- `FlatPack::Card::Component` — Cards (`:default`, `:elevated`, `:outlined`)
-- `FlatPack::Alert::Component` — Alerts (`:success`, `:error`, `:warning`, `:info`)
-- `FlatPack::Badge::Component` — Status badges
-- `FlatPack::Table::Component` — Data tables
-- `FlatPack::TextInput::Component`, `EmailInput`, `PasswordInput` — Form inputs
-- `FlatPack::PageNav::Component` — Default-layout page navigation
-- `FlatPack::PageTitle::Component` — Page titles
+- `GET /recordings/:recording_id/brands` is the brand home. One mount shows the brand or an empty state. Many mounts list each brand's name in a card, in the first column of a two-column grid.
+- A one mount that already holds several brands lists them with a warning and hides Add.
+- Add and edit save through `record` and `revise`.
+- The brand page is titled Brand. The name and the other details sit in one card. The edit screen has one button that replaces the logo.
 
-Use the live FlatPack demo app at [flatpack.bowerbird.io](https://flatpack.bowerbird.io/) as the approved UI reference for current shared patterns. Its component table is the fastest way to discover available FlatPack components before introducing new custom UI.
+Screens call Accessible with the signed-in actor. A viewer can open a brand. Add, edit, and logo upload need edit access. Brand does not enable its own access capability. Access is inherited from the recording the host already authorized.
 
-See the [FlatPack README](https://github.com/bowerbird-app/flatpack) for full documentation.
+The engine defaults to `authenticate_user!` and `current_user`. Override both in `config/initializers/recording_studio_brands.rb` when the host uses different method names.
 
-## Tech Stack
+## Install
 
-| Component       | Version |
-|-----------------|---------|
-| Ruby            | 3.3+    |
-| Rails           | 8.1+    |
-| PostgreSQL      | 16      |
-| TailwindCSS     | 4       |
-| RecordingStudio | 4.x (`~> 4.2` in the gemspec; dummy GitHub tag `v4.2.2`) |
-| Accessible      | dummy GitHub tag `v0.10.1` |
-| Root Switchable | dummy GitHub tag `v0.5.1` |
-| FlatPack        | dummy GitHub tag `v0.1.196` |
-| Devise          | latest  |
+Add the gem and its siblings. They are fetched from GitHub in this repo. The gemspec pins the versions below.
 
-The dummy Gemfile keeps `github:` sources so Bundler can fetch those gems. The gemspec still pins `recording_studio` to `~> 4.2` so copied addons declare the core dependency even when GitHub is the fetch source.
+```ruby
+gem "recording_studio_brands"
+```
 
-## Documentation
+From the host app:
 
-The original gem template documentation is preserved in `docs/gem_template/` as architectural reference material. Use it as background on the engine conventions; this README and the dummy app are the source of truth for the Recording Studio addon workflow.
+```bash
+bin/rails generate recording_studio_attachable:install
+bin/rails generate recording_studio_attachable:migrations
+bin/rails generate recording_studio_brands:install
+bin/rails generate recording_studio_brands:migrations
+bin/rails db:migrate
+bin/rails tailwindcss:build
+```
+
+Then register the two type strings, opt each parent in with `allows: :one` or `allows: :many`, and confirm auth, layout, and current actor integration. The install generator prints the same steps.
+
+### Upgrade from the template
+
+0.1.0 is the first release. Hosts that copied the addon template and want Brand:
+
+1. Add `recording_studio_brands` and `recording_studio_attachable`.
+2. Run the install and migration generators above, then `bin/rails db:migrate`.
+3. Add `"RecordingStudioBrands::Brand"` and `"RecordingStudioAttachable::Attachment"` to `config.recordable_types`.
+4. Include `RecordingStudio::Capabilities::Brand.to(allows: :one)` or `allows: :many` on each parent class that should hold brands.
+5. Rebuild Tailwind so the brand screens pick up Flatpack classes.
+
+No data migration is required. There is no earlier brand table.
+
+## Where brands sit
+
+These trees are conceptual. This gem records only the Brand rows. The parents come from the host.
+
+```text
+Company
+  Dove
+  Rexona
+  Ben & Jerry's
+
+Person
+  Taylor Swift
+
+Project
+  Acme Launch
+```
+
+A later host can place Press Centre under a Brand, then Press Kit and Messages under that. Those are separate gems.
+
+## Dummy app
+
+`test/dummy` is a host that is not Company or Person. Workspace and Folder both allow many brands. Page allows none. A host that wants a single brand still opts in with `allows: :one`.
+
+Sign in as `admin@admin.com` / `Password`. Studio Workspace holds Taylor Swift, Dove, and Acme Coffee. Product Docs holds Nike, Dove, and Acme Coffee. Client Workspace is empty, so you can add the first brand. Private Workspace is not shared with that user.
+
+```bash
+cd test/dummy
+bin/rails db:setup
+bin/dev
+```
+
+Open port 3000. `/` lists the brand homes the signed-in user can see. `/users/sign_in` is Devise. `/recording_studio` redirects to `/`.
+
+Cursor Cloud runs `.cursor/install.sh` and `.cursor/start.sh`. `environment.json` starts the Rails server, the Tailwind watcher, and port 3000.
+
+Dummy credentials (`test/dummy/config/credentials.yml.enc`) use the shared Recording Studio development master key. Set `RAILS_MASTER_KEY` or `test/dummy/config/master.key`.
+
+## Testing
+
+From the repository root:
+
+```bash
+bundle exec rake test:all
+```
+
+That runs the engine tests and the dummy app. The dummy covers one and many mounts, the create guard, revise, validation, the type string, the logo, inherited access, and the home page.
+
+## Dependencies
+
+| Component | Pin |
+| --- | --- |
+| Ruby | 3.3+ |
+| Rails | `~> 8.1.0` |
+| Recording Studio | `~> 4.2` in the gemspec. dummy GitHub tag `v4.2.2`. |
+| Accessible | `~> 0.10`. dummy GitHub tag `v0.10.1`. |
+| Attachable | `~> 0.7`. dummy GitHub tag `v0.7.1`. |
+| Root Switchable | Dummy only. dummy GitHub tag `v0.5.1`. |
+| Flatpack | `>= 0.1.196`. dummy GitHub tag `v0.1.196`. |
+
+`docs/gem_template/` is the frozen addon template this repo started from. This README is the source of truth for Brand.

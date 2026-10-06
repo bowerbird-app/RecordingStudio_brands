@@ -1,0 +1,8 @@
+<%# locals: (brand_recordings:) -%>
+<%= render FlatPack::List::Component.new(divider: true) do %>
+  <% brand_recordings.each do |brand_recording| %>
+    <%= render FlatPack::List::Item.new(href: brand_path(brand_recording), hover: true) do %>
+      <p class="font-medium"><%= brand_recording.recordable.name %></p>
+    <% end %>
+  <% end %>
+<% end %>

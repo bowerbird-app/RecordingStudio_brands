@@ -3,19 +3,44 @@
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
     title: "Install",
-    subtitle: "Host-app setup for the mounted GemTemplate engine and its sample migrations.",
+    subtitle: "Add Brand to a host, register the type, and choose one or many on each parent.",
     variant: :h1
   ) %>
 
   <%= render FlatPack::SectionTitle::Component.new(
     title: "Step 1",
-    subtitle: "Provide one section title for each step",
+    subtitle: "Install the engines and run their migrations."
   ) %>
 
   <%= render FlatPack::CodeBlock::Component.new(
     language: :bash,
     code: <<~CODE
-      # Put the step instruction here.
+      bin/rails generate recording_studio_attachable:install
+      bin/rails generate recording_studio_attachable:migrations
+      bin/rails generate recording_studio_brands:install
+      bin/rails generate recording_studio_brands:migrations
+      bin/rails db:migrate
+      bin/rails tailwindcss:build
+    CODE
+  ) %>
+
+  <%= render FlatPack::SectionTitle::Component.new(
+    title: "Step 2",
+    subtitle: "Register the type strings, then opt in on the parent."
+  ) %>
+
+  <%= render FlatPack::CodeBlock::Component.new(
+    language: :ruby,
+    code: <<~'CODE'
+      config.recordable_types += [
+        "RecordingStudioBrands::Brand",
+        "RecordingStudioAttachable::Attachment"
+      ]
+
+      class Project < ApplicationRecord
+        recording_studio_recordable label: "Project", root: false
+        include RecordingStudio::Capabilities::Brand.to(allows: :many)
+      end
     CODE
   ) %>
 </div>

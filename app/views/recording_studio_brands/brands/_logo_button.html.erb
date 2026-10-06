@@ -1,0 +1,16 @@
+<%# locals: (brand_recording:, brand:, logo:) -%>
+<% label = logo ? "Change logo" : "Add logo" %>
+
+<%= form_with url: brand_logo_path(brand_recording), method: :patch, multipart: true, class: "mb-6 flex max-w-2xl items-center gap-4" do %>
+  <%= render "recording_studio_brands/brands/logo_mark", brand:, logo:, size: :xl %>
+  <label class="relative inline-flex rounded-[var(--button-border-radius)] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-inset has-[:focus-visible]:ring-[var(--button-focus-ring-color)]">
+    <%= file_field_tag :logo,
+          accept: "image/*",
+          aria: { label: },
+          class: "absolute inset-0 z-10 cursor-pointer opacity-0 focus:outline-none",
+          onchange: "if (this.files.length) this.form.requestSubmit()" %>
+    <span class="pointer-events-none">
+      <%= render FlatPack::Button::Component.new(text: label, type: "button", tabindex: -1, aria: { hidden: "true" }) %>
+    </span>
+  </label>
+<% end %>

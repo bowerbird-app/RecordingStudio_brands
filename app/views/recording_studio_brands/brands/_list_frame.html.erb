@@ -1,0 +1,7 @@
+<%= render FlatPack::Grid::Component.new(cols: 2, align: :start) do %>
+  <%= render FlatPack::Card::Component.new(padding: :none) do |card| %>
+    <% card.body(padding: :none) do %>
+      <%= yield %>
+    <% end %>
+  <% end %>
+<% end %>

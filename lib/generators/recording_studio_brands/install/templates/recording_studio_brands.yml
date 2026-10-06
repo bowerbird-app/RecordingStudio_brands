@@ -1,0 +1,7 @@
+development:
+  authentication_method: authenticate_user!
+  current_actor_method: current_user
+
+production:
+  authentication_method: authenticate_user!
+  current_actor_method: current_user

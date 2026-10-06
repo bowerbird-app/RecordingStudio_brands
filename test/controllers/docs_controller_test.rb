@@ -26,18 +26,17 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", text: "Install"
     assert_includes response.body, "Step 1"
-    assert_includes response.body, "Provide one section title for each step"
-    assert_includes response.body, "# Put the step instruction here."
+    assert_includes response.body, "bin/rails generate recording_studio_brands:migrations"
+    assert_includes response.body, "RecordingStudioBrands::Brand"
   end
 
   test "config page renders successfully" do
     get docs_config_path
     assert_response :success
     assert_select "h1", text: "Config"
-    expected_placeholder = "Replace this placeholder with the configuration settings your generated gem exposes."
-
-    assert_includes response.body, expected_placeholder
-    assert_includes response.body, "# Add the config settings for the gem here."
+    assert_includes response.body, "config.authentication_method = :authenticate_user!"
+    assert_includes response.body, "RecordingStudio::Capabilities::Brand.to(allows: :one)"
+    assert_includes response.body, "RecordingStudio::Capabilities::Brand.to(allows: :many)"
   end
 
   test "recordable types page renders configured recordables dynamically" do
@@ -78,6 +77,9 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     folder_recording = record_child(folder, root_recording, root_recording)
     page = Page.create!(title: "API")
     record_child(page, root_recording, folder_recording)
+    root_recording.record(RecordingStudioBrands::Brand, parent_recording: root_recording, actor: @user) do |brand|
+      brand.name = "Tree Brand"
+    end
 
     get docs_recordings_tree_path
 
@@ -86,8 +88,8 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Workspace: Tree Workspace"
     assert_includes response.body, "Folder: Reference"
     assert_includes response.body, "Page: API"
+    assert_includes response.body, "Brand: Tree Brand"
     refute_includes response.body, "Access boundary"
-    refute_includes response.body, "Access: Admin"
     assert_select "div[role='tree']", count: 1
     assert_select "[role='treeitem']", minimum: 3
     refute_includes response.body, "Current structure"
@@ -99,18 +101,17 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", text: "Gem Views"
     assert_select "table", minimum: 1
-    refute_includes response.body, "app/views/gem_template/home/index.html.erb"
+    refute_includes response.body, "app/views/recording_studio_brands/home/index.html.erb"
   end
 
   test "methods page renders successfully" do
     get docs_methods_path
     assert_response :success
     assert_select "h1", text: "Methods"
-    assert_includes response.body, "Document the public methods your addon exposes."
-    assert_includes response.body, "Example method"
-    assert_includes response.body, "recordingstudio_addon.example_method"
-    assert_includes response.body, "# Explain what this method does before the example."
-    assert_includes response.body, "Provide one section title and codeblock for each method"
+    assert_includes response.body, "Brand.to"
+    assert_includes response.body, "RecordingStudio::Capabilities::Brand.to(allows:)"
+    assert_includes response.body, "parent_recording.record"
+    assert_includes response.body, "RecordingStudioBrands::Brand"
   end
 
   test "authenticated docs pages use the recording studio default layout" do
