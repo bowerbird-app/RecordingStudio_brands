@@ -4,8 +4,13 @@ require "recording_studio"
 require "recording_studio_brands/version"
 require "recording_studio_brands/engine"
 require "recording_studio_brands/configuration"
+require "recording_studio_brands/mount"
 
 module RecordingStudioBrands
+  # A string because the capability registers at require time, before the
+  # Brand model can autoload. Hosts list the same string in recordable_types.
+  BRAND_TYPE = "RecordingStudioBrands::Brand"
+
   class << self
     def configuration
       @configuration ||= Configuration.new
@@ -16,3 +21,5 @@ module RecordingStudioBrands
     end
   end
 end
+
+require "recording_studio/capabilities/brand"
