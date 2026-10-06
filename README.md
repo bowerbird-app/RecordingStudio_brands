@@ -1,4 +1,4 @@
-# GemTemplate
+# RecordingStudioBrands
 
 Internal template for building Rails engine addons on top of Recording Studio 4.x.
 
@@ -123,14 +123,6 @@ The dummy Workspace enables Accessible because that addon is bundled:
 ```ruby
 RecordingStudio.enable_capability(:accessible, on: Workspace)
 ```
-
-The template also ships one example mixin that uses core 4.2.0's `include_for` factory:
-
-```ruby
-include RecordingStudio::Capabilities::Example.to(label: "dummy workspace")
-```
-
-`.to` wraps `RecordingStudio::Capabilities.include_for`. It does not add a fourth verb and it does not call `enable_capability` / `set_capability_options` itself. Folder and Page stay without the example mixin.
 
 Use core `RecordingStudio::Hooks` and `RecordingStudio::Services::BaseService`. Do not copy those classes into a new addon.
 

@@ -1,22 +1,20 @@
 # frozen_string_literal: true
 
-module GemTemplate
+module RecordingStudioBrands
   class Configuration
-    attr_accessor :api_key, :enable_feature_x, :timeout
+    attr_accessor :authentication_method, :current_actor_method
     attr_reader :hooks
 
     def initialize
-      @api_key = ENV.fetch("GEM_TEMPLATE_API_KEY", nil)
-      @enable_feature_x = false
-      @timeout = 5
+      @authentication_method = :authenticate_user!
+      @current_actor_method = :current_user
       @hooks = RecordingStudio::Hooks.new
     end
 
     def to_h
       {
-        api_key: api_key,
-        enable_feature_x: enable_feature_x,
-        timeout: timeout,
+        authentication_method: authentication_method,
+        current_actor_method: current_actor_method,
         hooks_registered: hooks.instance_variable_get(:@registry).transform_values(&:size)
       }
     end
