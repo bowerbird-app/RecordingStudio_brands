@@ -64,7 +64,6 @@ module RecordingStudioBrands
 
     def render_list(template)
       @brand_recordings = @mount.brand_recordings.includes(:recordable).to_a
-      @logos = Logo.recordings_for(@brand_recordings)
       render template
     end
 

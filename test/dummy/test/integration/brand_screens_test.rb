@@ -140,14 +140,16 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
   end
 
   test "a folder lists its brands in order and adds more" do
-    nike = record_brand(@folder, "Nike")
+    nike = record_brand(@folder, "Nike") { |brand| brand.tagline = "Just Do It" }
     dove = record_brand(@folder, "Dove")
     acme = record_brand(@folder, "Acme Coffee")
     sign_in @owner
 
     get brands.recording_brands_path(@folder)
 
-    assert_equal [ "Nike", "Dove", "Acme Coffee" ], list_links.map { |link| link.at("p").text }
+    assert_equal [ "Nike", "Dove", "Acme Coffee" ], list_links.map { |link| link.text.squish }
+    assert_select "ul[role=list] img", count: 0
+    assert_not_includes list_links.map { |link| link.text }.join, "Just Do It"
     assert_equal [ nike, dove, acme ].map { |recording| brands.brand_path(recording) }, list_links.pluck("href")
     assert_select "h1", text: "Brands"
     assert_select ".md\\:grid-cols-2 ul[role=list]"
@@ -253,14 +255,19 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     end
     sign_in @owner
 
-    [ brands.brand_path(brand_recording), brands.recording_brands_path(@folder) ].each do |path|
-      get path
+    get brands.brand_path(brand_recording)
 
-      assert_includes page_text, script
-      assert_includes page_text, "<b>bold</b>"
-      assert_select "script", text: /alert\('name'\)/, count: 0
-      assert_select "b", text: "bold", count: 0
-    end
+    assert_includes page_text, script
+    assert_includes page_text, "<b>bold</b>"
+    assert_select "script", text: /alert\('name'\)/, count: 0
+    assert_select "b", text: "bold", count: 0
+
+    get brands.recording_brands_path(@folder)
+
+    assert_includes page_text, script
+    assert_not_includes page_text, "bold"
+    assert_select "script", text: /alert\('name'\)/, count: 0
+    assert_select "ul[role=list] img", count: 0
   end
 
   test "only a full web address becomes a website link" do
@@ -283,7 +290,7 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the logo shows on the brand page and in the list, and a viewer can load it" do
+  test "the logo shows on the brand page, not in the list, and a viewer can load it" do
     nike = record_brand(@folder, "Nike")
     sign_in @viewer
     get brands.brand_path(nike)
@@ -318,7 +325,8 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     sign_in @viewer
     get brands.recording_brands_path(@folder)
 
-    assert_select "li img[src=?]", logo_src
+    assert_select "ul[role=list]", text: /Nike/
+    assert_select "ul[role=list] img", count: 0
 
     get logo_src
 

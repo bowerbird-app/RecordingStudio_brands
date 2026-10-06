@@ -1,16 +1,8 @@
-<%# locals: (brand_recordings:, logos:) -%>
+<%# locals: (brand_recordings:) -%>
 <%= render FlatPack::List::Component.new(divider: true) do %>
   <% brand_recordings.each do |brand_recording| %>
-    <% brand = brand_recording.recordable %>
-    <%= render FlatPack::List::Item.new(
-      href: brand_path(brand_recording),
-      hover: true,
-      leading: render("recording_studio_brands/brands/logo_mark", brand:, logo: logos[brand_recording.id], size: :md)
-    ) do %>
-      <p class="font-medium"><%= brand.name %></p>
-      <% if brand.tagline %>
-        <p class="text-sm text-(--surface-muted-content-color)"><%= brand.tagline %></p>
-      <% end %>
+    <%= render FlatPack::List::Item.new(href: brand_path(brand_recording), hover: true) do %>
+      <p class="font-medium"><%= brand_recording.recordable.name %></p>
     <% end %>
   <% end %>
 <% end %>
