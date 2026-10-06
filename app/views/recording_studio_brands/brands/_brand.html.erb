@@ -1,0 +1,63 @@
+<%# locals: (brand_recording:, logo:) -%>
+<% brand = brand_recording.recordable %>
+<% editable = can_edit?(brand_recording) %>
+<% rows = brand_contact_rows(brand) %>
+
+<div class="flex flex-col gap-6">
+  <div class="flex items-start gap-4">
+    <%= render "recording_studio_brands/brands/logo_mark", brand:, logo:, size: :xl %>
+
+    <%= render FlatPack::PageTitle::Component.new(title: brand.name, subtitle: brand.tagline, class: "mb-0 flex-1") do |title| %>
+      <% if editable %>
+        <% title.slot do %>
+          <%= render FlatPack::Button::Component.new(text: "Edit brand", style: :primary, href: edit_brand_path(brand_recording)) %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% if brand.description || rows.any? %>
+    <%= render FlatPack::Card::Component.new do |card| %>
+      <% card.body do %>
+        <div class="flex flex-col gap-4">
+          <% if brand.description %>
+            <p class="whitespace-pre-line text-sm leading-6"><%= brand.description %></p>
+          <% end %>
+
+          <% if rows.any? %>
+            <dl class="grid grid-cols-[6rem_1fr] gap-x-4 gap-y-2 text-sm">
+              <% rows.each do |label, text, href| %>
+                <dt class="text-(--surface-muted-content-color)"><%= label %></dt>
+                <dd class="min-w-0 break-words">
+                  <% if href %>
+                    <%= render FlatPack::Link::Component.new(href:) do %><%= text %><% end %>
+                  <% else %>
+                    <%= text %>
+                  <% end %>
+                </dd>
+              <% end %>
+            </dl>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <% if editable %>
+    <%= render FlatPack::Card::Component.new do |card| %>
+      <% card.body do %>
+        <%= form_with url: brand_logo_path(brand_recording), method: :patch, multipart: true, class: "flex flex-col gap-4" do %>
+          <%= render FlatPack::FileInput::Component.new(
+            name: "logo",
+            label: "Logo",
+            accept: "image/*",
+            help_text: ("A new image replaces the current logo." if logo)
+          ) %>
+          <div>
+            <%= render FlatPack::Button::Component.new(text: logo ? "Replace logo" : "Upload logo", type: "submit") %>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

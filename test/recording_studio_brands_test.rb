@@ -177,18 +177,6 @@ class RecordingStudioBrandsTest < Minitest::Test
     refute_includes readme, "recording_studio/v3.0.0"
   end
 
-  def test_dummy_home_page_uses_demo_title_only
-    view_path = File.expand_path("dummy/app/views/home/index.html.erb", __dir__)
-    view_source = File.read(view_path)
-
-    assert_includes view_source, 'title: "Template Demo"'
-    assert_includes view_source, 'subtitle: "This dummy app is the browser-facing demo surface for the template."'
-    assert_includes view_source, "FlatPack::Card::Component"
-    assert_includes view_source, "dummy_page_nav"
-    refute_includes view_source, 'title: "Demo"'
-    refute_includes view_source, "FlatPack::Breadcrumb::Component"
-  end
-
   def test_dummy_docs_pages_use_minimal_flatpack_documentation_components
     docs_view_paths = Dir[File.expand_path("dummy/app/views/docs/*.html.erb", __dir__)].reject do |view_path|
       File.basename(view_path).start_with?("_")

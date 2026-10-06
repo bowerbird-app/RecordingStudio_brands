@@ -1,0 +1,10 @@
+<%# locals: (brand:, logo:, size:) -%>
+<%= render FlatPack::Avatar::Component.new(
+  src: (authorized_attachment_file_path(logo) if logo),
+  name: brand.name,
+  alt: "",
+  size:,
+  shape: :rounded,
+  show_tooltip: false,
+  class: "[&_img]:object-contain"
+) %>

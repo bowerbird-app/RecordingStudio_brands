@@ -8,6 +8,8 @@ module RecordingStudioBrands
 
     before_action :authenticate_brands_actor!
 
+    helper_method :brand_home_path, :can_edit?
+
     private
 
     def authenticate_brands_actor!
@@ -24,6 +26,10 @@ module RecordingStudioBrands
 
     def authorize_recording!(recording, role:)
       head :forbidden unless RecordingStudioAccessible.authorized?(actor: brands_actor, recording:, role:)
+    end
+
+    def can_edit?(recording)
+      RecordingStudioAccessible.authorized?(actor: brands_actor, recording:, role: :edit)
     end
 
     def load_brand(id, role:)

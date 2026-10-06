@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "flat_pack"
 require "recording_studio"
 require "recording_studio_accessible"
 require "recording_studio_attachable"

@@ -40,6 +40,7 @@ PATH
   remote: .
   specs:
     recording_studio_brands (0.1.0)
+      flat_pack (>= 0.1.196)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.10)
