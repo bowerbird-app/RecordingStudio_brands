@@ -28,10 +28,16 @@ ensure_brand = lambda do |parent, attributes|
              .where(parent_recording: parent, recordable_type: RecordingStudioBrands::BRAND_TYPE, trashed_at: nil)
              .includes(:recordable)
              .detect { |recording| recording.recordable.name == attributes[:name] }
-  next existing if existing
 
-  parent.record(RecordingStudioBrands::Brand, parent_recording: parent, actor: Current.actor) do |brand|
-    brand.assign_attributes(attributes)
+  if existing
+    current = existing.recordable.slice(*attributes.keys).symbolize_keys
+    next existing if current == attributes
+
+    parent.revise(existing, actor: Current.actor) { |brand| brand.assign_attributes(attributes) }
+  else
+    parent.record(RecordingStudioBrands::Brand, parent_recording: parent, actor: Current.actor) do |brand|
+      brand.assign_attributes(attributes)
+    end
   end
 end
 
