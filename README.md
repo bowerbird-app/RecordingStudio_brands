@@ -173,7 +173,7 @@ That runs the engine tests and the dummy app. The dummy covers one and many moun
 | --- | --- |
 | Ruby | 3.3+ |
 | Rails | `~> 8.1.0` |
-| Recording Studio | `~> 4.2` in the gemspec. dummy GitHub tag `v4.2.2`. |
+| Recording Studio | `~> 4.2` in the gemspec. dummy GitHub tag `v4.3.0`. |
 | Accessible | `~> 0.10`. dummy GitHub tag `v0.10.1`. |
 | Attachable | `~> 0.7`. dummy GitHub tag `v0.7.1`. |
 | Root Switchable | Dummy only. dummy GitHub tag `v0.5.1`. |
