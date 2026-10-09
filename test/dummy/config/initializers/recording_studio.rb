@@ -2,14 +2,17 @@
 
 RecordingStudio.configure do |config|
   # Registered delegated_type recordables (strings or classes).
-  # Attachable 0.7 registers its Attachment type only after core validates
-  # capability children at boot, so any app that bundles Attachable lists it.
+  # Attachable registers capability children at boot only after a parent enables
+  # that capability, so any app that bundles Attachable lists Attachment,
+  # Library, and Placement here for declaration validation.
   config.recordable_types = [
     "Workspace",
     "Folder",
     "Page",
     "RecordingStudioBrands::Brand",
-    "RecordingStudioAttachable::Attachment"
+    "RecordingStudioAttachable::Attachment",
+    "RecordingStudioAttachable::Library",
+    "RecordingStudioAttachable::Placement"
   ]
 
   # Require each configured ActiveRecord type to call recording_studio_recordable.
