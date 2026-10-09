@@ -1,7 +1,0 @@
-# Host override for brands gem interface copy. Loaded after engine locales so
-# these English strings win over the gem defaults in the dummy app.
-en:
-  recording_studio:
-    brands:
-      many:
-        subtitle: "HOST A brand is a distinct identity owned by a company. A company can have one brand or manage multiple brands."

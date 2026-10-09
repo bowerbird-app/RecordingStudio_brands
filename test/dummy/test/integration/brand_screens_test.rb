@@ -36,7 +36,7 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", text: "Brands"
-    assert_includes page_text, "HOST A brand is a distinct identity owned by a company. A company can have one brand or manage multiple brands."
+    assert_includes page_text, "A brand is a distinct identity owned by a company. A company can have one brand or manage multiple brands."
     assert_select ".md\\:grid-cols-2" do
       assert_select "h3", text: "No brands yet"
     end
