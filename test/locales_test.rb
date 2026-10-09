@@ -4,6 +4,8 @@ require "test_helper"
 require "yaml"
 
 class LocalesTest < Minitest::Test
+  # I18n interpolation tokens use %{name}; Style/FormatStringToken wants %<name>s.
+  # rubocop:disable-next Style/FormatStringToken
   BRAND_KEYS = {
     "titles" => {
       "brand" => "Brand",
@@ -37,7 +39,9 @@ class LocalesTest < Minitest::Test
       "no_brand_description" => "Give %{name} its public face."
     },
     "many" => {
-      "subtitle" => "A brand is a distinct identity owned by a company. A company can have one brand or manage multiple brands."
+      "subtitle" =>
+        "A brand is a distinct identity owned by a company. " \
+        "A company can have one brand or manage multiple brands."
     },
     "new" => {
       "subtitle" => "You can add a logo once it's saved."
