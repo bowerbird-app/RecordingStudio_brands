@@ -47,6 +47,16 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     sign_in @owner
     get brands.new_recording_brand_path(@workspace)
 
+    assert_response :success
+    assert_select "h1", text: "Add brand"
+    assert_includes page_text, "You can add a logo once it's saved."
+    assert_includes page_text, "Name"
+    assert_includes page_text, "Tagline"
+    assert_includes page_text, "Description"
+    assert_includes page_text, "Website"
+    assert_includes page_text, "Email"
+    assert_includes page_text, "Phone"
+    assert_select "button", text: "Save brand"
     assert_equal %w[brand[name] brand[tagline] brand[description] brand[website_url] brand[email] brand[phone]],
                  css_select("form [name^='brand[']").map { |field| field["name"] }
 
@@ -61,6 +71,7 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
 
     assert_select "h1", text: "Brand"
     assert_select "h2", text: "Taylor Swift"
+    assert_select "a", text: "Edit brand"
     assert_select ".max-w-2xl", count: 1
     assert_select "input[type=file]", count: 0
     assert_select ".max-w-2xl" do
@@ -69,10 +80,28 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     end
     assert_includes page_text, "The Eras Tour"
     assert_includes page_text, "Singer and songwriter."
+    assert_includes page_text, "Website"
+    assert_includes page_text, "Email"
+    assert_includes page_text, "Phone"
     assert_select "a[href=?]", "https://www.taylorswift.com", text: "https://www.taylorswift.com"
     assert_select "a[href=?]", "mailto:hello@taylorswift.com", text: "hello@taylorswift.com"
     assert_select "a[href=?]", "tel:+1 615 555 0100", text: "+1 615 555 0100"
     assert_select "a", text: "Add brand", count: 0
+  end
+
+  test "an empty one mount offers Add brand with the public face empty state" do
+    with_brand_options(Workspace, allows: :one) do
+      sign_in @owner
+
+      get brands.recording_brands_path(@workspace)
+
+      assert_response :success
+      assert_select "h1", text: "Brand"
+      assert_select "h3", text: "No brand yet"
+      assert_includes page_text, "Give Screens Workspace its public face."
+      assert_select "a[href=?]", brands.new_recording_brand_path(@workspace), text: "Add brand"
+      assert_select "a", text: "+ Brand", count: 0
+    end
   end
 
   test "a full workspace sends Add back to its brand" do
@@ -108,6 +137,10 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
 
     get brands.edit_brand_path(taylor)
 
+    assert_response :success
+    assert_select "h1", text: "Edit brand"
+    assert_select "button", text: "Add logo"
+    assert_select "button", text: "Save brand"
     assert_select "input[name='brand[name]'][value=?]", "Taylor Swift"
 
     patch brands.brand_path(taylor), params: { brand: { name: "Taylor Swift", tagline: "Midnights" } }
@@ -170,7 +203,9 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
       get brands.recording_brands_path(@workspace)
 
       assert_response :success
+      assert_select "h1", text: "Brands"
       assert_includes page_text, "This workspace has more than one brand"
+      assert_includes page_text, "A workspace holds just one. You can still open and edit each brand below."
       assert_select ".md\\:grid-cols-2 ul[role=list]"
       assert_equal [ brands.brand_path(nike), brands.brand_path(dove) ], list_links.pluck("href")
       assert_select "a", text: "+ Brand", count: 0
@@ -196,6 +231,7 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     get brands.recording_brands_path(@folder)
 
     assert_select "h3", text: "No brands yet"
+    assert_includes page_text, "Add the first one to get going."
     assert_select "a", text: "+ Brand", count: 0
 
     get brands.new_recording_brand_path(@folder)

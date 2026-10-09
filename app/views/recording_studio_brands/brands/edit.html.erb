@@ -1,6 +1,6 @@
-<% recording_studio_page_nav(title: "Edit brand", page_nav_anchor_url: brand_home_path(@brand_recording)) %>
+<% recording_studio_page_nav(title: t("recording_studio.brands.titles.edit_brand"), page_nav_anchor_url: brand_home_path(@brand_recording)) %>
 
-<%= render FlatPack::PageTitle::Component.new(title: "Edit brand", subtitle: @brand_recording.recordable.name) %>
+<%= render FlatPack::PageTitle::Component.new(title: t("recording_studio.brands.titles.edit_brand"), subtitle: @brand_recording.recordable.name) %>
 
 <%= render "recording_studio_brands/brands/logo_button",
       brand_recording: @brand_recording,

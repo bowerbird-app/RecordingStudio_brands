@@ -7,9 +7,9 @@ module RecordingStudioBrands
     # safe absolute address renders as plain text.
     def brand_contact_rows(brand)
       [
-        ["Website", brand.website_url, brand_web_href(brand.website_url)],
-        ["Email", brand.email, "mailto:#{brand.email}"],
-        ["Phone", brand.phone, "tel:#{brand.phone}"]
+        [t("recording_studio.brands.labels.website"), brand.website_url, brand_web_href(brand.website_url)],
+        [t("recording_studio.brands.labels.email"), brand.email, "mailto:#{brand.email}"],
+        [t("recording_studio.brands.labels.phone"), brand.phone, "tel:#{brand.phone}"]
       ].filter_map do |label, text, href|
         [label, text, FlatPack::AttributeSanitizer.sanitize_url(href)] if text
       end

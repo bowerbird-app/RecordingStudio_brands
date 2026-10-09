@@ -1,30 +1,31 @@
 <%# locals: (brand:, url:, method:) -%>
 <%= form_with url:, method:, class: "flex max-w-2xl flex-col gap-4" do %>
   <%= render FlatPack::TextInput::Component.new(
-    name: "brand[name]", label: "Name", value: brand.name, required: true,
+    name: "brand[name]", label: t("recording_studio.brands.labels.name"), value: brand.name, required: true,
     error: brand.errors.full_messages_for(:name).first
   ) %>
   <%= render FlatPack::TextInput::Component.new(
-    name: "brand[tagline]", label: "Tagline", value: brand.tagline,
+    name: "brand[tagline]", label: t("recording_studio.brands.labels.tagline"), value: brand.tagline,
     error: brand.errors.full_messages_for(:tagline).first
   ) %>
   <%= render FlatPack::TextArea::Component.new(
-    name: "brand[description]", label: "Description", value: brand.description, rows: 4,
+    name: "brand[description]", label: t("recording_studio.brands.labels.description"), value: brand.description, rows: 4,
     error: brand.errors.full_messages_for(:description).first
   ) %>
   <%= render FlatPack::UrlInput::Component.new(
-    name: "brand[website_url]", label: "Website", value: brand.website_url, placeholder: "https://",
+    name: "brand[website_url]", label: t("recording_studio.brands.labels.website"), value: brand.website_url,
+    placeholder: t("recording_studio.brands.placeholders.website"),
     error: brand.errors.full_messages_for(:website_url).first
   ) %>
   <%= render FlatPack::EmailInput::Component.new(
-    name: "brand[email]", label: "Email", value: brand.email,
+    name: "brand[email]", label: t("recording_studio.brands.labels.email"), value: brand.email,
     error: brand.errors.full_messages_for(:email).first
   ) %>
   <%= render FlatPack::PhoneInput::Component.new(
-    name: "brand[phone]", label: "Phone", value: brand.phone,
+    name: "brand[phone]", label: t("recording_studio.brands.labels.phone"), value: brand.phone,
     error: brand.errors.full_messages_for(:phone).first
   ) %>
   <div>
-    <%= render FlatPack::Button::Component.new(text: "Save brand", style: :primary, type: "submit") %>
+    <%= render FlatPack::Button::Component.new(text: t("recording_studio.brands.actions.save_brand"), style: :primary, type: "submit") %>
   </div>
 <% end %>

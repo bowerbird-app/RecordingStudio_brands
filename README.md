@@ -89,6 +89,14 @@ Screens call Accessible with the signed-in actor. A viewer can open a brand. Add
 
 The engine defaults to `authenticate_user!` and `current_user`. Override both in `config/initializers/recording_studio_brands.rb` when the host uses different method names.
 
+### Interface text
+
+Static interface copy on the gem's brand screens uses Rails I18n keys under
+`recording_studio.brands` in `config/locales/en.yml`. The gem ships English
+only. Hosts override or add languages in their own locale files. Brand names
+and other database content stay untranslated. Flash notices built in
+controllers are separate from these view keys.
+
 ## Install
 
 Add the gem and its siblings. They are fetched from GitHub in this repo. The gemspec pins the versions below.

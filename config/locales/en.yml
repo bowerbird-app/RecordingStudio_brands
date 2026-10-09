@@ -3,3 +3,38 @@ en:
     attributes:
       recording_studio_brands/brand:
         website_url: Website
+  recording_studio:
+    brands:
+      titles:
+        brand: "Brand"
+        brands: "Brands"
+        add_brand: "Add brand"
+        edit_brand: "Edit brand"
+      actions:
+        edit_brand: "Edit brand"
+        save_brand: "Save brand"
+        add_brand: "Add brand"
+        add_brand_plus: "+ Brand"
+        change_logo: "Change logo"
+        add_logo: "Add logo"
+      labels:
+        name: "Name"
+        tagline: "Tagline"
+        description: "Description"
+        website: "Website"
+        email: "Email"
+        phone: "Phone"
+      placeholders:
+        website: "https://"
+      empty:
+        no_brands_title: "No brands yet"
+        no_brands_description: "Add the first one to get going."
+        no_brand_title: "No brand yet"
+        no_brand_description: "Give %{name} its public face."
+      many:
+        subtitle: "A brand is a distinct identity owned by a company. A company can have one brand or manage multiple brands."
+      new:
+        subtitle: "You can add a logo once it's saved."
+      conflict:
+        title: "This %{type} has more than one brand"
+        description: "A %{type} holds just one. You can still open and edit each brand below."
