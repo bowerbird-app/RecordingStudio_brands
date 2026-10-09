@@ -178,7 +178,7 @@ That runs the engine tests and the dummy app. The dummy covers one and many moun
 | Recording Studio | `~> 4.2` in the gemspec. dummy GitHub tag `v4.4.0`. |
 | Accessible | `~> 0.13`. dummy GitHub tag `v0.13.0`. |
 | Attachable | `~> 0.13`. dummy GitHub tag `v0.13.0`. |
-| Root Switchable | Dummy only. dummy GitHub tag `v0.5.1`. |
+| Root Switchable | Dummy only. dummy GitHub tag `v0.6.0`. |
 | Flatpack | `>= 0.1.196`. dummy GitHub tag `v0.1.213` (Attachable 0.12+ needs `>= 0.1.213`). |
 
 `docs/gem_template/` is the frozen addon template this repo started from. This README is the source of truth for Brand.
