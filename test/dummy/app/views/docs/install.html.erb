@@ -34,7 +34,9 @@
     code: <<~'CODE'
       config.recordable_types += [
         "RecordingStudioBrands::Brand",
-        "RecordingStudioAttachable::Attachment"
+        "RecordingStudioAttachable::Attachment",
+        "RecordingStudioAttachable::Library",
+        "RecordingStudioAttachable::Placement"
       ]
 
       class Project < ApplicationRecord

@@ -32,7 +32,9 @@ Register the type, then opt in on each parent class. There is no default.
 RecordingStudio.configure do |config|
   config.recordable_types += [
     "RecordingStudioBrands::Brand",
-    "RecordingStudioAttachable::Attachment"
+    "RecordingStudioAttachable::Attachment",
+    "RecordingStudioAttachable::Library",
+    "RecordingStudioAttachable::Placement"
   ]
 end
 
@@ -114,7 +116,7 @@ Then register the two type strings, opt each parent in with `allows: :one` or `a
 
 1. Add `recording_studio_brands` and `recording_studio_attachable`.
 2. Run the install and migration generators above, then `bin/rails db:migrate`.
-3. Add `"RecordingStudioBrands::Brand"` and `"RecordingStudioAttachable::Attachment"` to `config.recordable_types`.
+3. Add `"RecordingStudioBrands::Brand"`, `"RecordingStudioAttachable::Attachment"`, `"RecordingStudioAttachable::Library"`, and `"RecordingStudioAttachable::Placement"` to `config.recordable_types`.
 4. Include `RecordingStudio::Capabilities::Brand.to(allows: :one)` or `allows: :many` on each parent class that should hold brands.
 5. Rebuild Tailwind so the brand screens pick up Flatpack classes.
 
@@ -174,9 +176,9 @@ That runs the engine tests and the dummy app. The dummy covers one and many moun
 | Ruby | 3.3+ |
 | Rails | `~> 8.1.0` |
 | Recording Studio | `~> 4.2` in the gemspec. dummy GitHub tag `v4.4.0`. |
-| Accessible | `~> 0.10`. dummy GitHub tag `v0.10.1`. |
-| Attachable | `~> 0.7`. dummy GitHub tag `v0.7.1`. |
-| Root Switchable | Dummy only. dummy GitHub tag `v0.5.1`. |
-| Flatpack | `>= 0.1.196`. dummy GitHub tag `v0.1.196`. |
+| Accessible | `~> 0.13`. dummy GitHub tag `v0.13.0`. |
+| Attachable | `~> 0.13`. dummy GitHub tag `v0.13.0`. |
+| Root Switchable | Dummy only. dummy GitHub tag `v0.6.0`. |
+| Flatpack | `>= 0.1.196`. dummy GitHub tag `v0.1.213` (Attachable 0.12+ needs `>= 0.1.213`). |
 
 `docs/gem_template/` is the frozen addon template this repo started from. This README is the source of truth for Brand.
