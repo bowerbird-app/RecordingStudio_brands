@@ -1,11 +1,11 @@
-<% recording_studio_page_nav(title: "Brands") %>
+<% recording_studio_page_nav(title: t("recording_studio.brands.titles.brands")) %>
 <% type = @parent.type_label.downcase %>
 
-<%= render FlatPack::PageTitle::Component.new(title: "Brands", subtitle: @parent.name) %>
+<%= render FlatPack::PageTitle::Component.new(title: t("recording_studio.brands.titles.brands"), subtitle: @parent.name) %>
 
 <%= render FlatPack::Alert::Component.new(
-  title: "This #{type} has more than one brand",
-  description: "A #{type} holds just one. You can still open and edit each brand below.",
+  title: t("recording_studio.brands.conflict.title", type:),
+  description: t("recording_studio.brands.conflict.description", type:),
   style: :warning,
   class: "mb-6"
 ) %>

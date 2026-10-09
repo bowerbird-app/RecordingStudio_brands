@@ -1,0 +1,8 @@
+# Test-only host override. Not under config/locales, so the dummy app's normal
+# UI keeps the gem English. BrandsI18nHostOverrideTest loads this file for one
+# request and restores I18n.load_path afterwards.
+en:
+  recording_studio:
+    brands:
+      many:
+        subtitle: "HOST A brand is a distinct identity owned by a company. A company can have one brand or manage multiple brands."

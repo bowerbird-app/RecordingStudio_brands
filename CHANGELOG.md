@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-10-09
+
+### Added
+
+* English Rails I18n keys for static interface copy in the gem's own brand
+  screens (`config/locales/en.yml` under `recording_studio.brands`)
+
+### Changed
+
+* Brand view and helper labels (titles, buttons, form labels, empty states,
+  conflict alert, logo button, contact row labels) resolve through `t(...)`
+  (English output unchanged)
+
+### Upgrade notes
+
+- No migration or host code change is required for English.
+- To translate or override the defaults, add keys under
+  `recording_studio.brands` in the host's locale files.
+- There is no dependency on `recording_studio_internationalization`.
+- ActiveRecord attribute labels under
+  `activerecord.attributes.recording_studio_brands/brand` are unchanged.
+
 ## [0.1.0] - 2026-10-06
 
 ### Added
@@ -27,4 +49,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Company, Person, Location, Press Centre, and Press Kit are not part of this gem. Trash, duplicate, and manual ordering stay off.
 
+[0.2.0]: https://github.com/bowerbird-app/RecordingStudio_brands/releases/tag/v0.2.0
 [0.1.0]: https://github.com/bowerbird-app/RecordingStudio_brands/releases/tag/v0.1.0

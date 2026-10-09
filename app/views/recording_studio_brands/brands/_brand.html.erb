@@ -3,10 +3,10 @@
 <% editable = can_edit?(brand_recording) %>
 <% rows = brand_contact_rows(brand) %>
 
-<%= render FlatPack::PageTitle::Component.new(title: "Brand", subtitle: @parent.name) do |title| %>
+<%= render FlatPack::PageTitle::Component.new(title: t("recording_studio.brands.titles.brand"), subtitle: @parent.name) do |title| %>
   <% if editable %>
     <% title.slot do %>
-      <%= render FlatPack::Button::Component.new(text: "Edit brand", style: :primary, href: edit_brand_path(brand_recording)) %>
+      <%= render FlatPack::Button::Component.new(text: t("recording_studio.brands.actions.edit_brand"), style: :primary, href: edit_brand_path(brand_recording)) %>
     <% end %>
   <% end %>
 <% end %>

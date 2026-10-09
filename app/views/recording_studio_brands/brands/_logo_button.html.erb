@@ -1,5 +1,5 @@
 <%# locals: (brand_recording:, brand:, logo:) -%>
-<% label = logo ? "Change logo" : "Add logo" %>
+<% label = logo ? t("recording_studio.brands.actions.change_logo") : t("recording_studio.brands.actions.add_logo") %>
 
 <%= form_with url: brand_logo_path(brand_recording), method: :patch, multipart: true, class: "mb-6 flex max-w-2xl items-center gap-4" do %>
   <%= render "recording_studio_brands/brands/logo_mark", brand:, logo:, size: :xl %>
