@@ -7,9 +7,14 @@ module RecordingStudioBrands
     def update
       file = params[:logo]
       if file.respond_to?(:original_filename) && save_logo(file)
-        redirect_to brand_home_path(@brand_recording), notice: "Logo saved."
+        redirect_to brand_home_path(@brand_recording),
+                    notice: t("recording_studio.brands.flashes.logo_saved", default: "Logo saved.")
       else
-        redirect_to brand_home_path(@brand_recording), alert: "The logo could not be saved. Choose an image file."
+        redirect_to brand_home_path(@brand_recording),
+                    alert: t(
+                      "recording_studio.brands.flashes.logo_not_saved",
+                      default: "The logo could not be saved. Choose an image file."
+                    )
       end
     end
 

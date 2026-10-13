@@ -91,11 +91,11 @@ The engine defaults to `authenticate_user!` and `current_user`. Override both in
 
 ### Interface text
 
-Static interface copy on the gem's brand screens uses Rails I18n keys under
-`recording_studio.brands` in `config/locales/en.yml`. The gem ships English
-only. Hosts override or add languages in their own locale files. Brand names
-and other database content stay untranslated. Flash notices built in
-controllers are separate from these view keys.
+Static interface copy on the gem's brand screens and controller flashes uses
+Rails I18n keys under `recording_studio.brands` in `config/locales/en.yml`.
+The gem ships English only. A host's own `config/locales` files win when they
+define the same keys (Rails loads host locales after the engine). Brand names
+and other database content stay untranslated.
 
 ## Install
 

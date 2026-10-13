@@ -38,3 +38,8 @@ en:
       conflict:
         title: "This %{type} has more than one brand"
         description: "A %{type} holds just one. You can still open and edit each brand below."
+      flashes:
+        brand_saved: "Brand saved."
+        logo_saved: "Logo saved."
+        logo_not_saved: "The logo could not be saved. Choose an image file."
+        brand_limit: "This %{type} already has a brand."
