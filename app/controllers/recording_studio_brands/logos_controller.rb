@@ -7,14 +7,9 @@ module RecordingStudioBrands
     def update
       file = params[:logo]
       if file.respond_to?(:original_filename) && save_logo(file)
-        redirect_to brand_home_path(@brand_recording),
-                    notice: t("recording_studio.brands.flashes.logo_saved", default: "Logo saved.")
+        redirect_to brand_home_path(@brand_recording), notice: logo_saved_notice
       else
-        redirect_to brand_home_path(@brand_recording),
-                    alert: t(
-                      "recording_studio.brands.flashes.logo_not_saved",
-                      default: "The logo could not be saved. Choose an image file."
-                    )
+        redirect_to brand_home_path(@brand_recording), alert: logo_not_saved_alert
       end
     end
 
@@ -35,6 +30,17 @@ module RecordingStudioBrands
       return logo.replace_attachment_file(signed_blob_id:, actor: brands_actor) if logo
 
       @brand_recording.record_attachment_upload(signed_blob_id:, name: Logo::NAME, actor: brands_actor)
+    end
+
+    def logo_saved_notice
+      t("recording_studio.brands.flashes.logo_saved", default: "Logo saved.")
+    end
+
+    def logo_not_saved_alert
+      t(
+        "recording_studio.brands.flashes.logo_not_saved",
+        default: "The logo could not be saved. Choose an image file."
+      )
     end
   end
 end

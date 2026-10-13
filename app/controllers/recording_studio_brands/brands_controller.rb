@@ -86,6 +86,7 @@ module RecordingStudioBrands
       t(
         "recording_studio.brands.flashes.brand_limit",
         type: @parent.type_label.downcase,
+        # rubocop:disable-next Style/FormatStringToken -- I18n interpolation
         default: "This %{type} already has a brand."
       )
     end
