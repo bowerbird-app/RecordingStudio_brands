@@ -186,7 +186,8 @@ That runs the engine tests and the dummy app. The dummy covers one and many moun
 | Recording Studio | `~> 4.2` in the gemspec. dummy GitHub tag `v4.5.0`. |
 | Accessible | `~> 0.13`. dummy GitHub tag `v0.15.0`. |
 | Attachable | `~> 0.15`. dummy GitHub tag `v0.15.0`. |
-| Root Switchable | Dummy only. dummy GitHub tag `v0.8.0`. |
+| Root Switchable | Dummy only. dummy GitHub tag `v0.9.0`. |
+| Cache | Dummy only (Root Switchable 0.9+). dummy GitHub tag `v0.5.0`. |
 | Metrics | Attachable 0.14+ and Root Switchable 0.7+. dummy GitHub tag `v0.2.0`. |
 | Flatpack | `>= 0.1.196`. dummy GitHub tag `v0.1.213` (Attachable 0.12+ needs `>= 0.1.213`). |
 
