@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.3.0] - 2026-10-13
+
+### Added
+
+- English Rails I18n keys for controller flash notices and alerts under
+  `recording_studio.brands.flashes.*` (`brand_saved`, `logo_saved`,
+  `logo_not_saved`, `brand_limit`)
+- Locale regression: every `lib/**/*.rb` file must not mention
+  `i18n.load_path` / `I18n.load_path`
+- Always-loaded dummy host override on the rarely shown conflict title
+  (`test/dummy/config/locales/recording_studio_brands.host.en.yml`) as the
+  real boot-order guard, plus render-level asserts for flash English
+
+### Changed
+
+- Version `0.2.0` → `0.3.0`.
+- Brand and logo controller notices/alerts resolve through
+  `t(..., default: <main English>)` (English output unchanged). Parent type
+  labels in flash interpolations stay raw from the parent recording.
+- README documents that the host's `config/locales` wins for the same keys.
+
+### Upgrade notes
+
+- No migration or host code change is required for English.
+- To translate or override flash copy, add keys under
+  `recording_studio.brands.flashes` in the host's locale files.
+- There is no dependency on `recording_studio_internationalization`.
+
 ## [0.2.0] - 2026-10-09
 
 ### Added
@@ -49,5 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Company, Person, Location, Press Centre, and Press Kit are not part of this gem. Trash, duplicate, and manual ordering stay off.
 
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/bowerbird-app/RecordingStudio_brands/releases/tag/v0.2.0
 [0.1.0]: https://github.com/bowerbird-app/RecordingStudio_brands/releases/tag/v0.1.0

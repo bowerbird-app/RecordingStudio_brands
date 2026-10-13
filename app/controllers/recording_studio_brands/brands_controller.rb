@@ -24,7 +24,7 @@ module RecordingStudioBrands
       brand_recording = @parent.record(Brand, parent_recording: @parent, actor: brands_actor) do |brand|
         brand.assign_attributes(brand_params)
       end
-      redirect_to brand_home_path(brand_recording), notice: "Brand saved."
+      redirect_to brand_home_path(brand_recording), notice: brand_saved_notice
     rescue BrandLimitReached
       redirect_to recording_brands_path(@parent), alert: limit_message
     rescue ActiveRecord::RecordInvalid => e
@@ -41,7 +41,7 @@ module RecordingStudioBrands
 
     def update
       @parent.revise(@brand_recording, actor: brands_actor) { |brand| brand.assign_attributes(brand_params) }
-      redirect_to brand_home_path(@brand_recording), notice: "Brand saved."
+      redirect_to brand_home_path(@brand_recording), notice: brand_saved_notice
     rescue ActiveRecord::RecordInvalid => e
       render_invalid(e, :edit)
     end
@@ -78,8 +78,17 @@ module RecordingStudioBrands
       params.expect(brand: Brand::FIELDS)
     end
 
+    def brand_saved_notice
+      t("recording_studio.brands.flashes.brand_saved", default: "Brand saved.")
+    end
+
     def limit_message
-      "This #{@parent.type_label.downcase} already has a brand."
+      t(
+        "recording_studio.brands.flashes.brand_limit",
+        type: @parent.type_label.downcase,
+        # rubocop:disable-next Style/FormatStringToken -- I18n interpolation
+        default: "This %{type} already has a brand."
+      )
     end
   end
 end

@@ -3,7 +3,7 @@
 require "test_helper"
 require "yaml"
 
-class LocalesTest < Minitest::Test
+class RecordingStudioBrandsLocalesTest < Minitest::Test
   # I18n interpolation tokens use %{name}; Style/FormatStringToken wants %<name>s.
   # rubocop:disable-next Style/FormatStringToken
   BRAND_KEYS = {
@@ -49,6 +49,12 @@ class LocalesTest < Minitest::Test
     "conflict" => {
       "title" => "This %{type} has more than one brand",
       "description" => "A %{type} holds just one. You can still open and edit each brand below."
+    },
+    "flashes" => {
+      "brand_saved" => "Brand saved.",
+      "logo_saved" => "Logo saved.",
+      "logo_not_saved" => "The logo could not be saved. Choose an image file.",
+      "brand_limit" => "This %{type} already has a brand."
     }
   }.freeze
 
@@ -73,6 +79,8 @@ class LocalesTest < Minitest::Test
                      I18n.t("recording_studio.brands.empty.no_brand_description", name: "Studio")
         assert_equal "This workspace has more than one brand",
                      I18n.t("recording_studio.brands.conflict.title", type: "workspace")
+        assert_equal "This workspace already has a brand.",
+                     I18n.t("recording_studio.brands.flashes.brand_limit", type: "workspace")
         assert_equal "Website",
                      I18n.t("activerecord.attributes.recording_studio_brands/brand.website_url", raise: true)
       end

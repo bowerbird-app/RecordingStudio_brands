@@ -1,0 +1,8 @@
+# Always-loaded host override for a rarely shown key. Proves the host's
+# config/locales wins over the gem at boot without changing the default dummy UI
+# (conflict only appears when a one-mount parent already has several brands).
+en:
+  recording_studio:
+    brands:
+      conflict:
+        title: "HOST This %{type} has more than one brand"
