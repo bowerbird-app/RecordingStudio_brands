@@ -46,7 +46,8 @@ class RecordingStudioBrandsTest < Minitest::Test
 
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.6.0"'
     refute_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.5.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.17.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.18.0"'
+    refute_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.17.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable",'
     assert_includes gemfile, 'tag: "v0.10.0", require: false'
@@ -198,8 +199,9 @@ class RecordingStudioBrandsTest < Minitest::Test
     assert_includes readme, "RecordingStudio"
     assert_includes readme, "dummy GitHub tag `v4.6.0`"
     assert_includes readme, "dummy GitHub tag `v0.1.213`"
-    assert_includes readme, "dummy GitHub tag `v0.17.0`"
+    assert_includes readme, "dummy GitHub tag `v0.18.0`"
     assert_includes readme, "dummy GitHub tag `v0.15.0`"
+    refute_includes readme, "dummy GitHub tag `v0.17.0`"
     assert_includes readme, "dummy GitHub tag `v0.10.0`"
     assert_includes readme, "dummy GitHub tag `v0.9.0`"
     assert_includes readme, "dummy GitHub tag `v0.5.0`"

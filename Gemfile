@@ -8,7 +8,7 @@ gemspec
 # These gems are not published to RubyGems; resolve the gemspec pins from GitHub.
 gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.213"
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.6.0"
-gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.17.0"
+gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.18.0"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"
 # Query-only trash helpers for Accessible 0.17+ (gemspec ~> 0.10). require: false —
 # Accessible loads recording_studio_trashable/query only.
