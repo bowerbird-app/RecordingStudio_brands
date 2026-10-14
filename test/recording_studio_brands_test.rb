@@ -44,7 +44,8 @@ class RecordingStudioBrandsTest < Minitest::Test
   def test_dummy_gemfile_pins_verified_4x_github_tags
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.5.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.6.0"'
+    refute_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.5.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.17.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable",'
@@ -195,7 +196,7 @@ class RecordingStudioBrandsTest < Minitest::Test
     readme = File.read(File.expand_path("../README.md", __dir__))
 
     assert_includes readme, "RecordingStudio"
-    assert_includes readme, "dummy GitHub tag `v4.5.0`"
+    assert_includes readme, "dummy GitHub tag `v4.6.0`"
     assert_includes readme, "dummy GitHub tag `v0.1.213`"
     assert_includes readme, "dummy GitHub tag `v0.17.0`"
     assert_includes readme, "dummy GitHub tag `v0.15.0`"
@@ -203,6 +204,7 @@ class RecordingStudioBrandsTest < Minitest::Test
     assert_includes readme, "dummy GitHub tag `v0.9.0`"
     assert_includes readme, "dummy GitHub tag `v0.5.0`"
     assert_includes readme, "dummy GitHub tag `v0.2.0`"
+    refute_includes readme, "dummy GitHub tag `v4.5.0`"
     refute_includes readme, "dummy GitHub tag `v0.8.0`"
     refute_includes readme, "dummy GitHub tag `v4.3.0`"
     refute_includes readme, "dummy GitHub tag `v4.2.2`"
