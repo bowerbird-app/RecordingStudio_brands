@@ -50,6 +50,58 @@ class CatalogueFieldsMigrationTest < ActiveSupport::TestCase
     end
   end
 
+  test "backfill normalizes legacy website_url and keeps brand ids" do
+    brand_id = SecureRandom.uuid
+    parent_id = SecureRandom.uuid
+
+    with_pre_catalogue_tables do
+      insert_brand(brand_id, "Nike", website_url: "WWW.NIKE.COM/path/?utm_source=old")
+      insert_recording(parent_id, brand_id)
+
+      @migration.send(:add_catalogue_columns)
+      @migration.send(:assign_missing_slugs!)
+      @migration.send(:normalize_legacy_website_urls!)
+      @connection.schema_cache.clear!
+
+      row = @connection.select_one(<<~SQL.squish)
+        SELECT id::text AS id, website_url, slug
+        FROM recording_studio_brands
+        WHERE id = #{@connection.quote(brand_id)}
+      SQL
+
+      assert_equal brand_id, row["id"]
+      assert_equal "nike", row["slug"]
+      assert_equal "https://www.nike.com/path", row["website_url"]
+    end
+  end
+
+  test "catalogue columns can be removed while brand ids stay" do
+    brand_id = SecureRandom.uuid
+    parent_id = SecureRandom.uuid
+
+    with_pre_catalogue_tables do
+      insert_brand(brand_id, "Rollback Brand")
+      insert_recording(parent_id, brand_id)
+
+      @migration.send(:add_catalogue_columns)
+      @migration.send(:assign_missing_slugs!)
+      @connection.schema_cache.clear!
+      assert column_exists?(:slug)
+      assert_equal brand_id, brand_id_value(brand_id)
+
+      @connection.change_column_null :recording_studio_brands, :slug, true
+      @connection.remove_column :recording_studio_brands, :slug
+      @connection.remove_column :recording_studio_brands, :active
+      @connection.remove_column :recording_studio_brands, :metadata
+      @connection.schema_cache.clear!
+
+      refute column_exists?(:slug)
+      refute column_exists?(:active)
+      refute column_exists?(:metadata)
+      assert_equal brand_id, brand_id_value(brand_id)
+    end
+  end
+
   private
 
   def with_pre_catalogue_tables
@@ -94,11 +146,17 @@ class CatalogueFieldsMigrationTest < ActiveSupport::TestCase
     @connection.rename_table :recording_studio_recordings_saved, :recording_studio_recordings
   end
 
-  def insert_brand(id, name)
+  def insert_brand(id, name, website_url: nil)
     now = @connection.quote(Time.current)
     @connection.execute(<<~SQL.squish)
-      INSERT INTO recording_studio_brands (id, name, created_at, updated_at)
-      VALUES (#{@connection.quote(id)}, #{@connection.quote(name)}, #{now}, #{now})
+      INSERT INTO recording_studio_brands (id, name, website_url, created_at, updated_at)
+      VALUES (
+        #{@connection.quote(id)},
+        #{@connection.quote(name)},
+        #{website_url.nil? ? 'NULL' : @connection.quote(website_url)},
+        #{now},
+        #{now}
+      )
     SQL
   end
 
@@ -132,5 +190,15 @@ class CatalogueFieldsMigrationTest < ActiveSupport::TestCase
         AND column_name = #{@connection.quote(name)}
     SQL
     value == "YES"
+  end
+
+  def column_exists?(name)
+    @connection.column_exists?(:recording_studio_brands, name)
+  end
+
+  def brand_id_value(id)
+    @connection.select_value(
+      "SELECT id::text FROM recording_studio_brands WHERE id = #{@connection.quote(id)}"
+    )
   end
 end

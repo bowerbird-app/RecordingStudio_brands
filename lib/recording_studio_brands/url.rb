@@ -5,15 +5,14 @@ require "uri"
 module RecordingStudioBrands
   # Website URL normalization for Brand#website_url.
   #
-  # When RecordingStudioPublications::Url is loaded (Phase B hosts that still
-  # ship both gems), this delegates so catalogue matching stays identical.
-  # Otherwise brands applies the rules below (https when missing, downcased
-  # scheme/host, strip default port, trailing slash, and fragment).
-  #
-  # Private RecordingStudio_publications was still unreadable here, so byte-
-  # for-byte parity with pubs could not be confirmed. Re-check pubs
-  # Url.normalize before catalogue cutover.
+  # Matches RecordingStudioPublications::Url.normalize: upgrade http to https,
+  # strip utm_*/fbclid/gclid, give an empty path a trailing "/", keep an explicit
+  # default port on the URI, and leave dotless hosts alone. When publications is
+  # loaded, this delegates so both gems stay identical.
   module Url
+    TRACKING_QUERY_KEY = /\A(?:utm_.*|fbclid|gclid)\z/i
+    private_constant :TRACKING_QUERY_KEY
+
     module_function
 
     def normalize(value)
@@ -40,20 +39,33 @@ module RecordingStudioBrands
     module_function :normalize_http_url
 
     def apply_uri_normalize(uri)
+      uri.scheme = "https" if uri.scheme.to_s.casecmp("http").zero?
       uri.scheme = uri.scheme.downcase
       uri.host = uri.host.downcase
-      uri.port = nil if uri.port == uri.default_port
       uri.fragment = nil
-      uri.query = uri.query.presence
-      trim_uri_path!(uri)
+      strip_tracking_query!(uri)
+      ensure_path!(uri)
       uri.to_s
     end
     module_function :apply_uri_normalize
 
-    def trim_uri_path!(uri)
-      path = uri.path.to_s.sub(%r{/\z}, "")
-      uri.path = path == "/" ? "" : path
+    def strip_tracking_query!(uri)
+      return if uri.query.blank?
+
+      kept = URI.decode_www_form(uri.query).reject { |key, _value| key.to_s.match?(TRACKING_QUERY_KEY) }
+      uri.query = kept.empty? ? nil : URI.encode_www_form(kept)
     end
-    module_function :trim_uri_path!
+    module_function :strip_tracking_query!
+
+    def ensure_path!(uri)
+      path = uri.path.to_s
+      if path.blank?
+        uri.path = "/"
+        return
+      end
+
+      uri.path = path == "/" ? "/" : path.sub(%r{/\z}, "")
+    end
+    module_function :ensure_path!
   end
 end

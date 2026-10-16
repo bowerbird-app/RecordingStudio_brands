@@ -9,7 +9,6 @@ module RecordingStudioBrands
   # child of the Brand recording, which revise leaves alone.
   class Brand < ActiveRecord::Base
     FIELDS = %i[name tagline description website_url email phone slug].freeze
-    CATALOGUE_FIELDS = %i[active metadata].freeze
 
     self.table_name = "recording_studio_brands"
 
@@ -59,14 +58,15 @@ module RecordingStudioBrands
 
     def slug_unique_among_current_under_parent
       return if slug.blank?
-      return unless conflicting_current_slug.exists?
+
+      parent_id = parent_recording_id_for_slug_uniqueness
+      return if parent_id.blank?
+      return unless conflicting_current_slug(parent_id).exists?
 
       errors.add(:slug, :taken)
     end
 
-    def conflicting_current_slug
-      parent_id = parent_recording_id_for_slug_uniqueness
-
+    def conflicting_current_slug(parent_id)
       exclude_self_from_slug_conflicts(
         self.class.current.where(slug: slug, recording_studio_recordings: { parent_recording_id: parent_id })
       )
@@ -78,9 +78,8 @@ module RecordingStudioBrands
                   parent_recording_id_from_revise_recording
       return parent_id if parent_id.present?
 
-      raise ArgumentError,
-            "Set parent_recording_id_for_slug before validating a Brand slug " \
-            "(or revise a Brand that is still linked to a recording)."
+      errors.add(:slug, :missing_parent)
+      nil
     end
 
     def parent_recording_id_from_revise_recording

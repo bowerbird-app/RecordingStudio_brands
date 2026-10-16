@@ -23,12 +23,14 @@ class AdminRegistrationTest < Minitest::Test
     with_gem_locale_loaded do
       assert_equal "Add brand", new_button.text.call(nil)
       assert_equal "Brands", RecordingStudioBrands::Admin::BrandsScreen.title_value.call
+      RecordingStudioBrands::Admin::BrandsScreen.define_catalogue_table!
+      active_column = RecordingStudioBrands::Admin::BrandsScreen.table_value.columns.find { |column| column.key == :active }
+      assert_equal "Active", active_column.title
+      assert_equal :badge, active_column.display
+      assert_respond_to active_column.display_options, :call
+      slug_column = RecordingStudioBrands::Admin::BrandsScreen.table_value.columns.find { |column| column.key == :slug }
+      assert_equal "Slug", slug_column.title
     end
-
-    active_column = RecordingStudioBrands::Admin::BrandsScreen.table_value.columns.find { |column| column.key == :active }
-    assert_equal "Active", active_column.title
-    assert_equal :badge, active_column.display
-    assert_respond_to active_column.display_options, :call
   end
 
   def test_configuration_defaults_include_mount_path

@@ -12,8 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Admin Brands index renders Active as a FlatPack Badge (success / default) and
   exposes a primary Add brand screen button
 - Admin brand show list is full width with labels leading values
-- Admin Brands screen/section/resource copy defers i18n to request time; table
-  column titles use the English strings Admin stores at definition time
+- Admin Brands screen/section/resource copy defers i18n to request time; the
+  catalogue table is rebuilt from locales in `register!` and on each query
+- `Url.normalize` matches publications (http→https, strip utm_*/fbclid/gclid,
+  empty path `/`, keep non-default ports, leave dotless hosts)
+- Catalogue migration also normalizes legacy `website_url` values
+- Missing slug parent context adds a validation error instead of raising
 
 ## [0.4.0] - 2026-10-16
 
@@ -29,8 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `RecordingStudioPublications::Url.normalize` when that constant is loaded)
 - `RecordingStudioBrands::Identity.find_brand` / `find_brand_recording` for
   current brands by slug, name, or website under an optional parent
-- Slug uniqueness among current brands under the same parent (raises if the
-  parent cannot be derived)
+- Slug uniqueness among current brands under the same parent
 - Recording Studio Admin section/screen/resource for Brands CRUD under the
   current root (`blast_radius :root`), with engine routes at
   `/recording_studio_brands/admin/brands`
@@ -39,7 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Version `0.3.0` → `0.4.0`
-- Website values are normalized on assign (https when missing, downcased host)
+- Website values are normalized on assign (same rules as publications
+  `Url.normalize`)
 - Slug is filled from the parameterized name when blank
 - Dummy host mounts Admin with an `AdminRoot` that allows many brands
 - Admin copy uses `RecordingStudio.t`; Brand metadata errors use ActiveModel keys
@@ -55,7 +59,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 2. Run `bin/rails generate recording_studio_brands:migrations` and
    `bin/rails db:migrate` so existing brand rows get `slug` / `active` /
    `metadata`. Slugs are backfilled with `parameterize`; duplicate base slugs
-   under one parent become `name`, `name-2`, `name-3`, …
+   under one parent become `name`, `name-2`, `name-3`, … Legacy `website_url`
+   values are normalized so `Identity.find_brand(website_url:)` matches.
 3. Mount Admin if hosts need Media brands CRUD when publications drops its
    Brand admin: enable a `brands` section on the admin root recordable, grant
    Accessible access, and ensure that root (or the switched root) includes
@@ -63,12 +68,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 4. Set `parent_recording_id_for_slug` on create/revise when writing brands
    outside this gem's controllers so slug uniqueness can scope to the parent.
    On revise, also set `slug_uniqueness_except_recording_id` to the Brand
-   recording id. Missing parent context raises `ArgumentError` during
-   validation instead of skipping the uniqueness check.
+   recording id. Missing parent context adds a slug validation error.
 5. Recordable UUIDs are unchanged by this release. Publications data copy and
-   Channel parent cutover remain a later publications PR. Private pubs
-   `Url.normalize` was not readable for a byte-for-byte check; confirm before
-   cutover.
+   Channel parent cutover remain a later publications PR.
+   `RecordingStudioBrands::Url.normalize` matches publications `Url.normalize`.
 
 ## [0.3.0] - 2026-10-13
 

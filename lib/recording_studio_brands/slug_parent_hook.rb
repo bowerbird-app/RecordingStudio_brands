@@ -15,7 +15,7 @@ module RecordingStudioBrands
 
     def assign_slug_parent(payload)
       recordable = payload[:recordable]
-      return unless recordable.is_a?(Brand)
+      return unless recordable.class.name == BRAND_TYPE
 
       apply_slug_parent(recordable, payload)
     end

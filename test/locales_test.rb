@@ -113,6 +113,11 @@ class RecordingStudioBrandsLocalesTest < Minitest::Test
                        "activerecord.errors.models.recording_studio_brands/brand.attributes.metadata.not_a_hash",
                        raise: true
                      )
+        assert_equal "needs a parent recording",
+                     I18n.t(
+                       "activerecord.errors.models.recording_studio_brands/brand.attributes.slug.missing_parent",
+                       raise: true
+                     )
       end
     end
   end

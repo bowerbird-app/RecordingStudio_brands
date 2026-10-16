@@ -82,11 +82,11 @@ class BrandCatalogueFieldsTest < ActiveSupport::TestCase
     assert_equal({ "source" => "admin", "note" => "paused" }, brand.metadata)
   end
 
-  test "slug uniqueness raises when parent cannot be derived" do
+  test "slug uniqueness adds a validation error when parent cannot be derived" do
     brand = RecordingStudioBrands::Brand.new(name: "Orphan", slug: "orphan")
 
-    error = assert_raises(ArgumentError) { brand.valid? }
-    assert_match(/parent_recording_id_for_slug/, error.message)
+    refute brand.valid?
+    assert_includes brand.errors[:slug], "needs a parent recording"
   end
 
   test "metadata that is not a hash uses the ActiveModel error key" do

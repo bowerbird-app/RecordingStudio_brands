@@ -9,6 +9,8 @@ en:
           attributes:
             metadata:
               not_a_hash: "must be a JSON object"
+            slug:
+              missing_parent: "needs a parent recording"
   recording_studio:
     brands:
       titles:

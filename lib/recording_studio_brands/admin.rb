@@ -32,6 +32,7 @@ module RecordingStudioBrands
              style: :primary
 
       query do |context|
+        BrandsScreen.define_catalogue_table!
         root = context.root_recording
         next RecordingStudio::Recording.none if root.blank?
         next RecordingStudio::Recording.none unless Mount.for(root)
@@ -44,31 +45,39 @@ module RecordingStudioBrands
         relation.includes(:recordable).order(updated_at: :desc)
       end
 
-      # Admin stores table/column titles as plain strings (no callable resolve), so use the
-      # same English as config/locales/en.yml. Request-time labels use RecordingStudio.t.
-      table do
-        title "Brands"
-        column :name,
-               title: "Name",
-               sortable: false,
-               value: ->(recording, _context) { recording.recordable&.name }
-        column :slug,
-               title: "Slug",
-               sortable: false,
-               value: ->(recording, _context) { recording.recordable&.slug }
-        column :active,
-               title: "Active",
-               sortable: false,
-               value: ->(recording, _context) { BrandsScreen.active_label(recording) },
-               display: :badge,
-               display_options: ->(recording, _context, _value) { BrandsScreen.active_badge_options(recording) }
-        column :website_url,
-               title: "Website",
-               sortable: false,
-               value: ->(recording, _context) { recording.recordable&.website_url }
-        column :updated_at, title: "Updated"
-        admin_action "brands.show", as: :open
-        admin_action "brands.edit"
+      # Admin stores table/column titles as strings. Rebuild from locales in
+      # register! and again when the query runs (after engine locales load).
+      def self.define_catalogue_table!
+        table do
+          title RecordingStudio.t("recording_studio.brands.admin.table_title")
+          BrandsScreen.define_catalogue_columns(self)
+          admin_action "brands.show", as: :open
+          admin_action "brands.edit"
+        end
+      end
+
+      def self.define_catalogue_columns(table)
+        define_text_column(table, :name, "labels.name", :name)
+        define_text_column(table, :slug, "labels.slug", :slug)
+        define_active_column(table)
+        define_text_column(table, :website_url, "labels.website", :website_url)
+        table.column :updated_at, title: RecordingStudio.t("recording_studio.brands.admin.updated_column")
+      end
+
+      def self.define_text_column(table, key, label_key, attribute)
+        table.column key,
+                     title: RecordingStudio.t("recording_studio.brands.#{label_key}"),
+                     sortable: false,
+                     value: ->(recording, _context) { recording.recordable&.public_send(attribute) }
+      end
+
+      def self.define_active_column(table)
+        table.column :active,
+                     title: RecordingStudio.t("recording_studio.brands.labels.active"),
+                     sortable: false,
+                     value: ->(recording, _context) { BrandsScreen.active_label(recording) },
+                     display: :badge,
+                     display_options: ->(recording, _context, _value) { BrandsScreen.active_badge_options(recording) }
       end
 
       def self.active_label(recording)
@@ -111,6 +120,7 @@ module RecordingStudioBrands
     end
 
     def self.register!
+      BrandsScreen.define_catalogue_table!
       RecordingStudioAdmin.register_section(BrandsSection)
       RecordingStudioAdmin.register_screen(BrandsScreen)
       RecordingStudioAdmin.register_resource(BrandsResource)

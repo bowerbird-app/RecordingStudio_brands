@@ -5,7 +5,7 @@ class AddCatalogueFieldsToRecordingStudioBrands < ActiveRecord::Migration[8.1]
 
   def change
     add_catalogue_columns
-    backfill_slugs
+    backfill_catalogue_data
     add_catalogue_indexes
   end
 
@@ -17,9 +17,12 @@ class AddCatalogueFieldsToRecordingStudioBrands < ActiveRecord::Migration[8.1]
     add_column :recording_studio_brands, :metadata, :jsonb, null: false, default: {}
   end
 
-  def backfill_slugs
+  def backfill_catalogue_data
     reversible do |dir|
-      dir.up { assign_missing_slugs! }
+      dir.up do
+        assign_missing_slugs!
+        normalize_legacy_website_urls!
+      end
     end
   end
 
@@ -27,6 +30,15 @@ class AddCatalogueFieldsToRecordingStudioBrands < ActiveRecord::Migration[8.1]
     taken = existing_slugs_by_parent
     brands_needing_slugs.each { |row| assign_slug_for_row!(row, taken) }
     change_column_null :recording_studio_brands, :slug, false
+  end
+
+  def normalize_legacy_website_urls!
+    website_url_rows.each do |row|
+      normalized = RecordingStudioBrands::Url.normalize(row["website_url"])
+      next if normalized.blank? || normalized == row["website_url"]
+
+      update_brand_website_url!(row["id"], normalized)
+    end
   end
 
   def assign_slug_for_row!(row, taken)
@@ -55,6 +67,14 @@ class AddCatalogueFieldsToRecordingStudioBrands < ActiveRecord::Migration[8.1]
     connection.select_all(brand_slug_rows_sql)
   end
 
+  def website_url_rows
+    connection.select_all(<<~SQL.squish)
+      SELECT id::text AS id, website_url
+      FROM recording_studio_brands
+      WHERE website_url IS NOT NULL AND website_url <> ''
+    SQL
+  end
+
   def brand_slug_rows_sql
     type = quote(BRAND_TYPE)
     "SELECT brands.id::text AS id, brands.name AS name, brands.slug AS slug, " \
@@ -81,6 +101,14 @@ class AddCatalogueFieldsToRecordingStudioBrands < ActiveRecord::Migration[8.1]
     execute(<<~SQL.squish)
       UPDATE recording_studio_brands
       SET slug = #{quote(slug)}
+      WHERE id = #{quote(id)}
+    SQL
+  end
+
+  def update_brand_website_url!(id, website_url)
+    execute(<<~SQL.squish)
+      UPDATE recording_studio_brands
+      SET website_url = #{quote(website_url)}
       WHERE id = #{quote(id)}
     SQL
   end
