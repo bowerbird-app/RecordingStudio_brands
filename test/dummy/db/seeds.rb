@@ -35,9 +35,14 @@ ensure_brand = lambda do |parent, attributes|
     current = existing.recordable.slice(*attributes.keys).symbolize_keys
     next existing if current == attributes
 
-    parent.revise(existing, actor: Current.actor) { |brand| brand.assign_attributes(attributes) }
+    parent.revise(existing, actor: Current.actor) do |brand|
+      brand.parent_recording_id_for_slug = parent.id
+      brand.slug_uniqueness_except_recording_id = existing.id
+      brand.assign_attributes(attributes)
+    end
   else
     parent.record(RecordingStudioBrands::Brand, parent_recording: parent, actor: Current.actor) do |brand|
+      brand.parent_recording_id_for_slug = parent.id
       brand.assign_attributes(attributes)
     end
   end
@@ -53,6 +58,7 @@ end
 workspace = Workspace.find_or_create_by!(name: "Studio Workspace")
 accessible_workspace = Workspace.find_or_create_by!(name: "Client Workspace")
 private_workspace = Workspace.find_or_create_by!(name: "Private Workspace")
+admin_root = AdminRoot.find_or_create_by!(name: "Admin")
 folder = Folder.find_or_create_by!(name: "Product Docs")
 page = Page.find_or_create_by!(title: "Getting Started")
 
@@ -64,12 +70,14 @@ begin
   root_recording = RecordingStudio.root_recording_for(workspace)
   accessible_root_recording = RecordingStudio.root_recording_for(accessible_workspace)
   private_root_recording = RecordingStudio.root_recording_for(private_workspace)
+  admin_root_recording = RecordingStudio.root_recording_for(admin_root)
 
   folder_recording = find_or_record_child.call(folder, root_recording, root_recording)
   find_or_record_child.call(page, root_recording, folder_recording)
 
   ensure_owner.call(root_recording, user)
   ensure_owner.call(accessible_root_recording, user)
+  ensure_owner.call(admin_root_recording, user)
 
   ensure_brand.call(root_recording, {
     name: "Taylor Swift",
@@ -116,5 +124,6 @@ puts "Seeded: admin@admin.com / Password"
 puts "Seeded: Workspace '#{workspace.name}' with Taylor Swift, Dove, and Acme Coffee"
 puts "Seeded: Workspace '#{accessible_workspace.name}' with no brand yet"
 puts "Seeded: Workspace '#{private_workspace.name}' with no access for the admin"
+puts "Seeded: AdminRoot '#{admin_root.name}' for Brands admin"
 puts "Seeded: Folder '#{folder.name}' with Nike, Dove, and Acme Coffee"
 puts "Seeded: Page '#{page.title}'"

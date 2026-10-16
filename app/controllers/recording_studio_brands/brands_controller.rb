@@ -22,7 +22,7 @@ module RecordingStudioBrands
 
     def create
       brand_recording = @parent.record(Brand, parent_recording: @parent, actor: brands_actor) do |brand|
-        brand.assign_attributes(brand_params)
+        assign_brand_attributes(brand)
       end
       redirect_to brand_home_path(brand_recording), notice: brand_saved_notice
     rescue BrandLimitReached
@@ -40,13 +40,19 @@ module RecordingStudioBrands
     end
 
     def update
-      @parent.revise(@brand_recording, actor: brands_actor) { |brand| brand.assign_attributes(brand_params) }
+      @parent.revise(@brand_recording, actor: brands_actor) { |brand| assign_brand_attributes(brand) }
       redirect_to brand_home_path(@brand_recording), notice: brand_saved_notice
     rescue ActiveRecord::RecordInvalid => e
       render_invalid(e, :edit)
     end
 
     private
+
+    def assign_brand_attributes(brand)
+      brand.parent_recording_id_for_slug = @parent.id
+      brand.slug_uniqueness_except_recording_id = @brand_recording&.id
+      brand.assign_attributes(brand_params)
+    end
 
     def load_parent(role:)
       @parent = RecordingStudio::Recording.find(params[:recording_id])

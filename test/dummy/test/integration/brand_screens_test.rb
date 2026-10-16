@@ -421,6 +421,7 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
 
   def record_brand(parent, name)
     parent.record(RecordingStudioBrands::Brand, parent_recording: parent, actor: @owner) do |brand|
+      brand.parent_recording_id_for_slug = parent.id
       brand.name = name
       yield brand if block_given?
     end

@@ -3,12 +3,16 @@
 require "flat_pack"
 require "recording_studio"
 require "recording_studio_accessible"
+require "recording_studio_admin"
 require "recording_studio_attachable"
 require "recording_studio_brands/version"
 require "recording_studio_brands/engine"
 require "recording_studio_brands/configuration"
 require "recording_studio_brands/mount"
 require "recording_studio_brands/logo"
+require "recording_studio_brands/url"
+require "recording_studio_brands/identity"
+require "recording_studio_brands/admin"
 
 module RecordingStudioBrands
   # A string because the capability registers at require time, before the
