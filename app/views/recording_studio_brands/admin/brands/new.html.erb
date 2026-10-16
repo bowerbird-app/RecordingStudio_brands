@@ -1,0 +1,16 @@
+<div class="mx-auto flex w-full flex-col gap-6">
+  <%= render FlatPack::PageTitle::Component.new(
+    title: t("recording_studio.brands.titles.add_brand"),
+    subtitle: t("recording_studio.brands.admin.new_subtitle"),
+    variant: :h1
+  ) %>
+
+  <%= form_with url: admin_brands_path, method: :post, class: "flex w-full max-w-2xl flex-col gap-4" do %>
+    <%= render "form", brand: @brand %>
+    <%= render FlatPack::Button::Component.new(
+      text: t("recording_studio.brands.actions.save_brand"),
+      style: :primary,
+      type: "submit"
+    ) %>
+  <% end %>
+</div>

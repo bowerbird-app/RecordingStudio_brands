@@ -9,6 +9,7 @@ RecordingStudio.configure do |config|
     "Workspace",
     "Folder",
     "Page",
+    "AdminRoot",
     "RecordingStudioBrands::Brand",
     "RecordingStudioAttachable::Attachment",
     "RecordingStudioAttachable::Library",

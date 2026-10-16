@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   mount RecordingStudio::Engine, at: "/recording_studio"
   mount RecordingStudioRootSwitchable::Engine, at: "/recording_studio_root_switchable"
   mount RecordingStudioBrands::Engine, at: "/recording_studio_brands"
+  recording_studio_admin_for :admin, at: "/admin", root_section: :brands
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

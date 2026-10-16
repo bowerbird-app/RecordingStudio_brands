@@ -23,14 +23,25 @@ class RecordingStudioBrandsLocalesTest < Minitest::Test
     },
     "labels" => {
       "name" => "Name",
+      "slug" => "Slug",
       "tagline" => "Tagline",
       "description" => "Description",
       "website" => "Website",
       "email" => "Email",
-      "phone" => "Phone"
+      "phone" => "Phone",
+      "active" => "Active",
+      "active_yes" => "Yes",
+      "active_no" => "No"
+    },
+    "help" => {
+      "slug" => "Used in seeds and catalogue lookups. Leave blank to build it from the name.",
+      "active" => "Off hides the brand from live catalogue lists."
     },
     "placeholders" => {
       "website" => "https://"
+    },
+    "admin" => {
+      "new_subtitle" => "Saved under the root you have open."
     },
     "empty" => {
       "no_brands_title" => "No brands yet",
@@ -54,7 +65,9 @@ class RecordingStudioBrandsLocalesTest < Minitest::Test
       "brand_saved" => "Brand saved.",
       "logo_saved" => "Logo saved.",
       "logo_not_saved" => "The logo could not be saved. Choose an image file.",
-      "brand_limit" => "This %{type} already has a brand."
+      "brand_limit" => "This %{type} already has a brand.",
+      "brand_invalid" => "Check the brand and try again.",
+      "admin_root_missing" => "Pick a root that holds brands, then try again."
     }
   }.freeze
 

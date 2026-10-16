@@ -120,5 +120,9 @@ module RecordingStudioBrands
         end
       end
     end
+
+    initializer "recording_studio_brands.admin_definitions" do
+      config.to_prepare { RecordingStudioBrands::Admin.register! }
+    end
   end
 end

@@ -1,0 +1,117 @@
+# frozen_string_literal: true
+
+require "recording_studio_admin"
+
+module RecordingStudioBrands
+  module Admin
+    class BrandsSection < RecordingStudioAdmin::Section
+      key "brands"
+      title "Brands"
+      subtitle "Public names under this root."
+      blast_radius :root
+
+      link :catalogue,
+           text: "Brands",
+           url: ->(context) { context.admin_screen_path("recording_studio_brands") },
+           style: :secondary
+      link :new,
+           text: "New",
+           url: ->(_context) { RecordingStudioBrands.admin_new_brand_path },
+           style: :primary
+    end
+
+    class BrandsScreen < RecordingStudioAdmin::Screen
+      key "recording_studio_brands"
+      title "Brands"
+      subtitle "Names, slugs, and whether each brand is live."
+      blast_radius :root
+      query do |context|
+        root = context.root_recording
+        next RecordingStudio::Recording.none if root.blank?
+        next RecordingStudio::Recording.none unless Mount.for(root)
+
+        relation = RecordingStudio::Recording.where(
+          recordable_type: BRAND_TYPE,
+          parent_recording_id: root.id
+        )
+        relation = relation.where(trashed_at: nil) if RecordingStudio::Recording.column_names.include?("trashed_at")
+        relation.includes(:recordable).order(updated_at: :desc)
+      end
+
+      table do
+        title "Brands"
+        column :name,
+               title: "Name",
+               sortable: false,
+               value: ->(recording, _context) { recording.recordable&.name }
+        column :slug,
+               title: "Slug",
+               sortable: false,
+               value: ->(recording, _context) { recording.recordable&.slug }
+        column :active,
+               title: "Active",
+               sortable: false,
+               value: ->(recording, _context) { recording.recordable&.active ? "Yes" : "No" }
+        column :website_url,
+               title: "Website",
+               sortable: false,
+               value: ->(recording, _context) { recording.recordable&.website_url }
+        column :updated_at, title: "Updated"
+        admin_action "brands.show", as: :open
+        admin_action "brands.edit"
+      end
+    end
+
+    class BrandsResource < RecordingStudioAdmin::Resource
+      key "brands"
+      section "brands"
+      title "Brands"
+      blast_radius :root
+
+      action :show,
+             text: "Show",
+             url: ->(recording, _context) { RecordingStudioBrands.admin_brand_path(recording) if recording },
+             visible_if: ->(recording, _context) { recording.present? }
+
+      action :edit,
+             text: "Edit",
+             required_role: :edit,
+             url: lambda { |recording, _context|
+               RecordingStudioBrands.edit_admin_brand_path(recording) if recording
+             },
+             visible_if: ->(recording, _context) { recording.present? }
+
+      action :new,
+             text: "New",
+             required_role: :edit,
+             url: ->(_recording, _context) { RecordingStudioBrands.admin_new_brand_path }
+    end
+
+    def self.register!
+      RecordingStudioAdmin.register_section(BrandsSection)
+      RecordingStudioAdmin.register_screen(BrandsScreen)
+      RecordingStudioAdmin.register_resource(BrandsResource)
+    end
+  end
+
+  def self.admin_brands_path
+    engine_admin_path(:admin_brands_path)
+  end
+
+  def self.admin_new_brand_path
+    engine_admin_path(:new_admin_brand_path)
+  end
+
+  def self.admin_brand_path(recording)
+    engine_admin_path(:admin_brand_path, recording)
+  end
+
+  def self.edit_admin_brand_path(recording)
+    engine_admin_path(:edit_admin_brand_path, recording)
+  end
+
+  def self.engine_admin_path(helper, *)
+    Engine.routes.url_helpers.public_send(helper, *, script_name: configuration.mount_path)
+  end
+  private_class_method :engine_admin_path
+end

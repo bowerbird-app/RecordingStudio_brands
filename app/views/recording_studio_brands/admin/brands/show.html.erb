@@ -1,0 +1,38 @@
+<div class="mx-auto flex w-full flex-col gap-6">
+  <%= render FlatPack::PageTitle::Component.new(
+    title: @brand.name,
+    subtitle: @brand.tagline.presence || @brand.slug,
+    variant: :h1
+  ) do |page_title| %>
+    <% page_title.slot do %>
+      <%= render FlatPack::Button::Component.new(
+        text: t("recording_studio.brands.actions.edit_brand"),
+        style: :secondary,
+        href: edit_admin_brand_path(@brand_recording)
+      ) %>
+    <% end %>
+  <% end %>
+
+  <dl class="flex max-w-2xl flex-col gap-3 text-sm">
+    <div>
+      <dt class="font-medium"><%= t("recording_studio.brands.labels.slug") %></dt>
+      <dd><%= @brand.slug %></dd>
+    </div>
+    <div>
+      <dt class="font-medium"><%= t("recording_studio.brands.labels.active") %></dt>
+      <dd><%= @brand.active? ? t("recording_studio.brands.labels.active_yes") : t("recording_studio.brands.labels.active_no") %></dd>
+    </div>
+    <% if @brand.website_url.present? %>
+      <div>
+        <dt class="font-medium"><%= t("recording_studio.brands.labels.website") %></dt>
+        <dd><%= @brand.website_url %></dd>
+      </div>
+    <% end %>
+    <% if @brand.description.present? %>
+      <div>
+        <dt class="font-medium"><%= t("recording_studio.brands.labels.description") %></dt>
+        <dd class="whitespace-pre-wrap"><%= @brand.description %></dd>
+      </div>
+    <% end %>
+  </dl>
+</div>

@@ -1,0 +1,55 @@
+<%# locals: (brand:) -%>
+<%= render FlatPack::TextInput::Component.new(
+  name: "brand[name]",
+  label: t("recording_studio.brands.labels.name"),
+  value: brand.name,
+  required: true,
+  error: brand.errors.full_messages_for(:name).first
+) %>
+<%= render FlatPack::TextInput::Component.new(
+  name: "brand[slug]",
+  label: t("recording_studio.brands.labels.slug"),
+  value: brand.slug,
+  help_text: t("recording_studio.brands.help.slug"),
+  error: brand.errors.full_messages_for(:slug).first
+) %>
+<%= render FlatPack::TextInput::Component.new(
+  name: "brand[tagline]",
+  label: t("recording_studio.brands.labels.tagline"),
+  value: brand.tagline,
+  error: brand.errors.full_messages_for(:tagline).first
+) %>
+<%= render FlatPack::TextArea::Component.new(
+  name: "brand[description]",
+  label: t("recording_studio.brands.labels.description"),
+  value: brand.description,
+  rows: 4,
+  error: brand.errors.full_messages_for(:description).first
+) %>
+<%= render FlatPack::UrlInput::Component.new(
+  name: "brand[website_url]",
+  label: t("recording_studio.brands.labels.website"),
+  value: brand.website_url,
+  placeholder: t("recording_studio.brands.placeholders.website"),
+  error: brand.errors.full_messages_for(:website_url).first
+) %>
+<%= render FlatPack::EmailInput::Component.new(
+  name: "brand[email]",
+  label: t("recording_studio.brands.labels.email"),
+  value: brand.email,
+  error: brand.errors.full_messages_for(:email).first
+) %>
+<%= render FlatPack::PhoneInput::Component.new(
+  name: "brand[phone]",
+  label: t("recording_studio.brands.labels.phone"),
+  value: brand.phone,
+  error: brand.errors.full_messages_for(:phone).first
+) %>
+<%= hidden_field_tag "brand[active]", "0", id: nil %>
+<%= render FlatPack::Switch::Component.new(
+  name: "brand[active]",
+  label: t("recording_studio.brands.labels.active"),
+  checked: brand.active != false,
+  help_text: t("recording_studio.brands.help.active"),
+  error: brand.errors.full_messages_for(:active).first
+) %>
