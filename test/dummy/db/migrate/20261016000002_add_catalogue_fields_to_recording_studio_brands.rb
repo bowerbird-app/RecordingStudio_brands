@@ -1,17 +1,7 @@
 # frozen_string_literal: true
 
 class AddCatalogueFieldsToRecordingStudioBrands < ActiveRecord::Migration[8.1]
-  SLUG_BACKFILL_SQL = <<~SQL.squish
-    UPDATE recording_studio_brands
-    SET slug = COALESCE(
-      NULLIF(
-        TRIM(BOTH '-' FROM REGEXP_REPLACE(LOWER(name), '[^a-z0-9]+', '-', 'g')),
-        ''
-      ),
-      REPLACE(id::text, '-', '')
-    )
-    WHERE slug IS NULL OR slug = ''
-  SQL
+  BRAND_TYPE = "RecordingStudioBrands::Brand"
 
   def change
     add_catalogue_columns
@@ -34,8 +24,65 @@ class AddCatalogueFieldsToRecordingStudioBrands < ActiveRecord::Migration[8.1]
   end
 
   def assign_missing_slugs!
-    execute SLUG_BACKFILL_SQL
+    taken = existing_slugs_by_parent
+    brands_needing_slugs.each { |row| assign_slug_for_row!(row, taken) }
     change_column_null :recording_studio_brands, :slug, false
+  end
+
+  def assign_slug_for_row!(row, taken)
+    parent_id = row["parent_recording_id"]
+    base = row["name"].to_s.parameterize.presence || row["id"].to_s.delete("-")
+    slug = unique_slug(base, taken[parent_id])
+    taken[parent_id] << slug
+    update_brand_slug!(row["id"], slug)
+  end
+
+  def existing_slugs_by_parent
+    taken = Hash.new { |hash, key| hash[key] = Set.new }
+    brand_slug_rows.each do |row|
+      next if row["slug"].blank?
+
+      taken[row["parent_recording_id"]] << row["slug"]
+    end
+    taken
+  end
+
+  def brands_needing_slugs
+    brand_slug_rows.select { |row| row["slug"].blank? }
+  end
+
+  def brand_slug_rows
+    connection.select_all(brand_slug_rows_sql)
+  end
+
+  def brand_slug_rows_sql
+    type = quote(BRAND_TYPE)
+    "SELECT brands.id::text AS id, brands.name AS name, brands.slug AS slug, " \
+      "recordings.parent_recording_id::text AS parent_recording_id " \
+      "FROM recording_studio_brands brands " \
+      "LEFT JOIN recording_studio_recordings recordings " \
+      "ON recordings.recordable_type = #{type} AND recordings.recordable_id = brands.id " \
+      "ORDER BY brands.created_at ASC, brands.id ASC"
+  end
+
+  def unique_slug(base, taken)
+    return base unless taken.include?(base)
+
+    suffix = 2
+    loop do
+      candidate = "#{base}-#{suffix}"
+      return candidate unless taken.include?(candidate)
+
+      suffix += 1
+    end
+  end
+
+  def update_brand_slug!(id, slug)
+    execute(<<~SQL.squish)
+      UPDATE recording_studio_brands
+      SET slug = #{quote(slug)}
+      WHERE id = #{quote(id)}
+    SQL
   end
 
   def add_catalogue_indexes

@@ -65,12 +65,29 @@ module RecordingStudioBrands
     end
 
     def conflicting_current_slug
-      parent_id = parent_recording_id_for_slug.presence || parent_recording_id_from_current_link
-      return self.class.none if parent_id.blank?
+      parent_id = parent_recording_id_for_slug_uniqueness
 
       exclude_self_from_slug_conflicts(
         self.class.current.where(slug: slug, recording_studio_recordings: { parent_recording_id: parent_id })
       )
+    end
+
+    def parent_recording_id_for_slug_uniqueness
+      parent_id = parent_recording_id_for_slug.presence ||
+                  parent_recording_id_from_current_link ||
+                  parent_recording_id_from_revise_recording
+      return parent_id if parent_id.present?
+
+      raise ArgumentError,
+            "Set parent_recording_id_for_slug before validating a Brand slug " \
+            "(or revise a Brand that is still linked to a recording)."
+    end
+
+    def parent_recording_id_from_revise_recording
+      return if slug_uniqueness_except_recording_id.blank?
+
+      RecordingStudio::Recording.where(id: slug_uniqueness_except_recording_id)
+                                .pick(:parent_recording_id)
     end
 
     def exclude_self_from_slug_conflicts(relation)
@@ -90,7 +107,7 @@ module RecordingStudioBrands
     def metadata_must_be_a_hash
       return if metadata.is_a?(Hash)
 
-      errors.add(:metadata, "must be a JSON object")
+      errors.add(:metadata, :not_a_hash)
     end
   end
 end

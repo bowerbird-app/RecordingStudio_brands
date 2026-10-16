@@ -41,7 +41,19 @@ class RecordingStudioBrandsLocalesTest < Minitest::Test
       "website" => "https://"
     },
     "admin" => {
-      "new_subtitle" => "Saved under the root you have open."
+      "new_subtitle" => "Saved under the root you have open.",
+      "section_title" => "Brands",
+      "section_subtitle" => "Public names under this root.",
+      "catalogue_link" => "Brands",
+      "new_link" => "New",
+      "screen_title" => "Brands",
+      "screen_subtitle" => "Names, slugs, and whether each brand is live.",
+      "table_title" => "Brands",
+      "updated_column" => "Updated",
+      "resource_title" => "Brands",
+      "show_action" => "Show",
+      "edit_action" => "Edit",
+      "new_action" => "New"
     },
     "empty" => {
       "no_brands_title" => "No brands yet",
@@ -96,6 +108,11 @@ class RecordingStudioBrandsLocalesTest < Minitest::Test
                      I18n.t("recording_studio.brands.flashes.brand_limit", type: "workspace")
         assert_equal "Website",
                      I18n.t("activerecord.attributes.recording_studio_brands/brand.website_url", raise: true)
+        assert_equal "must be a JSON object",
+                     I18n.t(
+                       "activerecord.errors.models.recording_studio_brands/brand.attributes.metadata.not_a_hash",
+                       raise: true
+                     )
       end
     end
   end

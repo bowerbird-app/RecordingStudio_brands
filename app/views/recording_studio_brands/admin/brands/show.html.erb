@@ -13,26 +13,27 @@
     <% end %>
   <% end %>
 
-  <dl class="flex max-w-2xl flex-col gap-3 text-sm">
-    <div>
-      <dt class="font-medium"><%= t("recording_studio.brands.labels.slug") %></dt>
-      <dd><%= @brand.slug %></dd>
-    </div>
-    <div>
-      <dt class="font-medium"><%= t("recording_studio.brands.labels.active") %></dt>
-      <dd><%= @brand.active? ? t("recording_studio.brands.labels.active_yes") : t("recording_studio.brands.labels.active_no") %></dd>
-    </div>
+  <%= render FlatPack::List::Component.new(divider: true, spacing: :compact, class: "max-w-2xl") do %>
+    <%= render FlatPack::List::Item.new(trailing: @brand.slug) do %>
+      <%= t("recording_studio.brands.labels.slug") %>
+    <% end %>
+    <%= render FlatPack::List::Item.new(
+      trailing: (@brand.active? ? t("recording_studio.brands.labels.active_yes") : t("recording_studio.brands.labels.active_no"))
+    ) do %>
+      <%= t("recording_studio.brands.labels.active") %>
+    <% end %>
     <% if @brand.website_url.present? %>
-      <div>
-        <dt class="font-medium"><%= t("recording_studio.brands.labels.website") %></dt>
-        <dd><%= @brand.website_url %></dd>
-      </div>
+      <%= render FlatPack::List::Item.new(trailing: @brand.website_url) do %>
+        <%= t("recording_studio.brands.labels.website") %>
+      <% end %>
     <% end %>
     <% if @brand.description.present? %>
-      <div>
-        <dt class="font-medium"><%= t("recording_studio.brands.labels.description") %></dt>
-        <dd class="whitespace-pre-wrap"><%= @brand.description %></dd>
-      </div>
+      <%= render FlatPack::List::Item.new do %>
+        <%= render FlatPack::Content::Component.new do %>
+          <p class="text-sm font-medium"><%= t("recording_studio.brands.labels.description") %></p>
+          <p class="mt-1 whitespace-pre-wrap text-sm"><%= @brand.description %></p>
+        <% end %>
+      <% end %>
     <% end %>
-  </dl>
+  <% end %>
 </div>

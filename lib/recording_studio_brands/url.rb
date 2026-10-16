@@ -7,9 +7,12 @@ module RecordingStudioBrands
   #
   # When RecordingStudioPublications::Url is loaded (Phase B hosts that still
   # ship both gems), this delegates so catalogue matching stays identical.
-  # Otherwise brands applies the equivalent below. The private publications
-  # source was not readable from this environment; verify against pubs
-  # Url.normalize before cutover if behavior must match byte-for-byte.
+  # Otherwise brands applies the rules below (https when missing, downcased
+  # scheme/host, strip default port, trailing slash, and fragment).
+  #
+  # Private RecordingStudio_publications was still unreadable here, so byte-
+  # for-byte parity with pubs could not be confirmed. Re-check pubs
+  # Url.normalize before catalogue cutover.
   module Url
     module_function
 

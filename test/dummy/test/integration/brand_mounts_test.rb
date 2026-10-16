@@ -34,7 +34,9 @@ class BrandMountsTest < ActiveSupport::TestCase
   test "a direct Recording.create! of a second one-brand workspace brand raises" do
     with_brand_options(Workspace, allows: :one) do
       record_brand(@workspace, "Taylor Swift")
-      second_brand = RecordingStudioBrands::Brand.create!(name: "Taylor's Version")
+      second_brand = RecordingStudioBrands::Brand.new(name: "Taylor's Version")
+      second_brand.parent_recording_id_for_slug = @workspace.id
+      second_brand.save!
 
       assert_raises(RecordingStudioBrands::BrandLimitReached) do
         RecordingStudio::Recording.create!(parent_recording: @workspace, recordable: second_brand)
@@ -92,7 +94,9 @@ class BrandMountsTest < ActiveSupport::TestCase
   end
 
   test "a brand cannot be a root" do
-    brand = RecordingStudioBrands::Brand.create!(name: "Nike")
+    brand = RecordingStudioBrands::Brand.new(name: "Nike")
+    brand.parent_recording_id_for_slug = @folder.id
+    brand.save!
 
     assert_raises(RecordingStudio::RootNotAllowed) { RecordingStudio.root_recording_for(brand) }
     assert_raises(ActiveRecord::RecordInvalid) { RecordingStudio::Recording.create!(recordable: brand) }

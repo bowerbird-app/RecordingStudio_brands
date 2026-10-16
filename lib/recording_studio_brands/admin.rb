@@ -6,24 +6,24 @@ module RecordingStudioBrands
   module Admin
     class BrandsSection < RecordingStudioAdmin::Section
       key "brands"
-      title "Brands"
-      subtitle "Public names under this root."
+      title RecordingStudio.t("recording_studio.brands.admin.section_title")
+      subtitle RecordingStudio.t("recording_studio.brands.admin.section_subtitle")
       blast_radius :root
 
       link :catalogue,
-           text: "Brands",
+           text: RecordingStudio.t("recording_studio.brands.admin.catalogue_link"),
            url: ->(context) { context.admin_screen_path("recording_studio_brands") },
            style: :secondary
       link :new,
-           text: "New",
+           text: RecordingStudio.t("recording_studio.brands.admin.new_link"),
            url: ->(_context) { RecordingStudioBrands.admin_new_brand_path },
            style: :primary
     end
 
     class BrandsScreen < RecordingStudioAdmin::Screen
       key "recording_studio_brands"
-      title "Brands"
-      subtitle "Names, slugs, and whether each brand is live."
+      title RecordingStudio.t("recording_studio.brands.admin.screen_title")
+      subtitle RecordingStudio.t("recording_studio.brands.admin.screen_subtitle")
       blast_radius :root
       query do |context|
         root = context.root_recording
@@ -39,24 +39,27 @@ module RecordingStudioBrands
       end
 
       table do
-        title "Brands"
+        title RecordingStudio.t("recording_studio.brands.admin.table_title")
         column :name,
-               title: "Name",
+               title: RecordingStudio.t("recording_studio.brands.labels.name"),
                sortable: false,
                value: ->(recording, _context) { recording.recordable&.name }
         column :slug,
-               title: "Slug",
+               title: RecordingStudio.t("recording_studio.brands.labels.slug"),
                sortable: false,
                value: ->(recording, _context) { recording.recordable&.slug }
         column :active,
-               title: "Active",
+               title: RecordingStudio.t("recording_studio.brands.labels.active"),
                sortable: false,
-               value: ->(recording, _context) { recording.recordable&.active ? "Yes" : "No" }
+               value: lambda { |recording, _context|
+                 key = recording.recordable&.active ? "active_yes" : "active_no"
+                 RecordingStudio.t("recording_studio.brands.labels.#{key}")
+               }
         column :website_url,
-               title: "Website",
+               title: RecordingStudio.t("recording_studio.brands.labels.website"),
                sortable: false,
                value: ->(recording, _context) { recording.recordable&.website_url }
-        column :updated_at, title: "Updated"
+        column :updated_at, title: RecordingStudio.t("recording_studio.brands.admin.updated_column")
         admin_action "brands.show", as: :open
         admin_action "brands.edit"
       end
@@ -65,16 +68,16 @@ module RecordingStudioBrands
     class BrandsResource < RecordingStudioAdmin::Resource
       key "brands"
       section "brands"
-      title "Brands"
+      title RecordingStudio.t("recording_studio.brands.admin.resource_title")
       blast_radius :root
 
       action :show,
-             text: "Show",
+             text: RecordingStudio.t("recording_studio.brands.admin.show_action"),
              url: ->(recording, _context) { RecordingStudioBrands.admin_brand_path(recording) if recording },
              visible_if: ->(recording, _context) { recording.present? }
 
       action :edit,
-             text: "Edit",
+             text: RecordingStudio.t("recording_studio.brands.admin.edit_action"),
              required_role: :edit,
              url: lambda { |recording, _context|
                RecordingStudioBrands.edit_admin_brand_path(recording) if recording
@@ -82,7 +85,7 @@ module RecordingStudioBrands
              visible_if: ->(recording, _context) { recording.present? }
 
       action :new,
-             text: "New",
+             text: RecordingStudio.t("recording_studio.brands.admin.new_action"),
              required_role: :edit,
              url: ->(_recording, _context) { RecordingStudioBrands.admin_new_brand_path }
     end

@@ -91,7 +91,14 @@ When writing brands outside this gem's controllers, set
 `brand.parent_recording_id_for_slug = parent.id` before validation so slug
 uniqueness can scope to that parent. On revise, also set
 `brand.slug_uniqueness_except_recording_id = brand_recording.id` so the
-still-current snapshot does not collide with itself.
+still-current snapshot does not collide with itself. Missing parent context
+raises `ArgumentError` instead of skipping the uniqueness check.
+
+Install catalogue columns with
+`bin/rails generate recording_studio_brands:migrations` then
+`bin/rails db:migrate`. Empty slugs are backfilled with `String#parameterize`
+(so `Café` becomes `cafe`); duplicate base slugs under one parent get `-2`,
+`-3`, … suffixes.
 
 ## Screens
 

@@ -12,6 +12,7 @@ require "recording_studio_brands/mount"
 require "recording_studio_brands/logo"
 require "recording_studio_brands/url"
 require "recording_studio_brands/identity"
+require "recording_studio_brands/slug_parent_hook"
 require "recording_studio_brands/admin"
 
 module RecordingStudioBrands

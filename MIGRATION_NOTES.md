@@ -14,6 +14,17 @@
 - FlatPack dummy tag `v0.1.213`
 - Public RubyGems and GitHub access for dependency installation
 
+## Installing catalogue fields (0.4.0+)
+
+Hosts upgrading onto Brands catalogue fields should copy the engine migrations and migrate:
+
+```bash
+bin/rails generate recording_studio_brands:migrations
+bin/rails db:migrate
+```
+
+The catalogue migration adds `slug`, `active`, and `metadata` on `recording_studio_brands`. Empty slugs are backfilled in Ruby with `String#parameterize` (so names like `Café` become `cafe`). When more than one brand under the same parent would share a base slug, later rows get `-2`, `-3`, … suffixes.
+
 ## Verification
 
 Install both bundles and run the complete gem and dummy app test path:

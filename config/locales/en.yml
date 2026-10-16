@@ -3,6 +3,12 @@ en:
     attributes:
       recording_studio_brands/brand:
         website_url: Website
+    errors:
+      models:
+        recording_studio_brands/brand:
+          attributes:
+            metadata:
+              not_a_hash: "must be a JSON object"
   recording_studio:
     brands:
       titles:
@@ -35,6 +41,18 @@ en:
         website: "https://"
       admin:
         new_subtitle: "Saved under the root you have open."
+        section_title: "Brands"
+        section_subtitle: "Public names under this root."
+        catalogue_link: "Brands"
+        new_link: "New"
+        screen_title: "Brands"
+        screen_subtitle: "Names, slugs, and whether each brand is live."
+        table_title: "Brands"
+        updated_column: "Updated"
+        resource_title: "Brands"
+        show_action: "Show"
+        edit_action: "Edit"
+        new_action: "New"
       empty:
         no_brands_title: "No brands yet"
         no_brands_description: "Add the first one to get going."

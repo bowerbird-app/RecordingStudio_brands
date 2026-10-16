@@ -3,7 +3,7 @@
 module RecordingStudioBrands
   module Admin
     class BrandsController < ApplicationController # rubocop:disable Metrics/ClassLength
-      include RecordingStudioAdmin::AdminActionAuditing if defined?(RecordingStudioAdmin::AdminActionAuditing)
+      include RecordingStudioAdmin::AdminActionAuditing
 
       before_action :authenticate_brands_actor!
       before_action :authorize_brand!
@@ -13,7 +13,7 @@ module RecordingStudioBrands
       end
 
       def new
-        assign_form(Brand.new(active: true, metadata: {}))
+        assign_form(Brand.new(active: true))
       end
 
       def create
@@ -66,8 +66,6 @@ module RecordingStudioBrands
       end
 
       def authorize_brand!
-        return head(:forbidden) unless defined?(RecordingStudioAdmin)
-
         RecordingStudioAdmin.authorize_resource!(
           key: "brands",
           action: brand_resource_action,
@@ -102,8 +100,6 @@ module RecordingStudioBrands
       end
 
       def recording_studio_admin_context
-        return unless defined?(RecordingStudioAdmin::Context)
-
         @recording_studio_admin_context ||= RecordingStudioAdmin::Context.new(
           params: params.to_unsafe_h,
           current_actor: brands_actor,
@@ -168,7 +164,7 @@ module RecordingStudioBrands
           "recording_studio.brands.flashes.admin_root_missing",
           default: "Pick a root that holds brands, then try again."
         )
-        assign_form_from_params
+        assign_form_from_params(validate: false)
         render :new, status: :unprocessable_content
       end
 
@@ -180,9 +176,10 @@ module RecordingStudioBrands
         render template, status: :unprocessable_content
       end
 
-      def assign_form_from_params
+      def assign_form_from_params(validate: true)
         brand = Brand.new(brand_attributes)
-        brand.valid?
+        brand.parent_recording_id_for_slug = brand_parent&.id
+        brand.valid? if validate && brand.parent_recording_id_for_slug.present?
         assign_form(brand)
       end
 
@@ -193,23 +190,13 @@ module RecordingStudioBrands
       def brand_attributes
         permitted = brand_params.to_h
         permitted[:active] = ActiveModel::Type::Boolean.new.cast(permitted[:active]) if permitted.key?(:active)
-        permitted[:metadata] = parse_metadata(permitted[:metadata]) if permitted.key?(:metadata)
         permitted
       end
 
       def brand_params
         params.fetch(:brand, ActionController::Parameters.new).permit(
-          *(Brand::FIELDS + Brand::CATALOGUE_FIELDS)
+          *(Brand::FIELDS + [:active])
         )
-      end
-
-      def parse_metadata(value)
-        return value if value.is_a?(Hash)
-        return {} if value.blank?
-
-        JSON.parse(value)
-      rescue JSON::ParserError
-        value
       end
 
       def brand_saved_notice

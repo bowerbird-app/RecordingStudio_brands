@@ -2,16 +2,12 @@
 
 module RecordingStudioBrands
   class ApplicationController < (defined?(::ApplicationController) ? ::ApplicationController : ActionController::Base)
-    include RecordingStudio::UsesDefaultLayout if defined?(RecordingStudio::UsesDefaultLayout)
+    include RecordingStudio::UsesDefaultLayout
 
-    # Isolated engines look up layouts in their own namespace first. Prepend the
-    # host and Recording Studio view paths so `recording_studio/default_layout` resolves.
-    if defined?(Rails.application) && Rails.application.respond_to?(:root)
-      prepend_view_path Rails.application.root.join("app/views")
-    end
-    append_view_path RecordingStudio::Engine.root.join("app/views") if defined?(RecordingStudio::Engine)
-
-    layout "recording_studio/default_layout" if defined?(RecordingStudio::UsesDefaultLayout)
+    # UsesDefaultLayout does nothing when the host controller already includes it, and the host may
+    # pick another layout for its own pages, so Brands pages set both explicitly.
+    layout "recording_studio/default_layout"
+    helper RecordingStudio::LayoutHelper
 
     protect_from_forgery with: :exception
 
