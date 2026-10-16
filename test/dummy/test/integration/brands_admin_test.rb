@@ -23,16 +23,30 @@ class BrandsAdminTest < ActionDispatch::IntegrationTest
   end
 
   test "admin screen lists brands under the admin root" do
-    record_brand(name: "Listed brand", slug: "listed-brand", tagline: "On the screen")
+    listed = record_brand(name: "Listed brand", slug: "listed-brand", tagline: "On the screen", active: true)
+    record_brand(name: "Paused brand", slug: "paused-brand", active: false)
     sign_in_and_switch_root
 
     get "/admin/screens/recording_studio_brands"
     assert_response :success
+    assert_includes response.body, "Add brand"
+    assert_includes response.body, RecordingStudioBrands.admin_new_brand_path
 
     get "/admin/screens/recording_studio_brands/table"
     assert_response :success
     assert_includes response.body, "Listed brand"
     assert_includes response.body, "listed-brand"
+    assert_includes response.body, "badge-success-background-color"
+    assert_includes response.body, "badge-default-background-color"
+    assert_includes response.body, ">Yes<"
+    assert_includes response.body, ">No<"
+
+    get "/recording_studio_brands/admin/brands/#{listed.id}"
+    assert_response :success
+    refute_includes response.body, "max-w-2xl"
+    assert_includes response.body, "badge-success-background-color"
+    assert_includes response.body, ">Yes<"
+    assert_includes response.body, "flex-shrink-0 mr-2"
   end
 
   test "admin create and update keep the recording id and normalize the website" do

@@ -25,6 +25,12 @@ module RecordingStudioBrands
       title RecordingStudio.t("recording_studio.brands.admin.screen_title")
       subtitle RecordingStudio.t("recording_studio.brands.admin.screen_subtitle")
       blast_radius :root
+
+      button :new,
+             text: ->(_context) { RecordingStudio.t("recording_studio.brands.actions.add_brand") },
+             url: ->(_context) { RecordingStudioBrands.admin_new_brand_path },
+             style: :primary
+
       query do |context|
         root = context.root_recording
         next RecordingStudio::Recording.none if root.blank?
@@ -51,10 +57,9 @@ module RecordingStudioBrands
         column :active,
                title: RecordingStudio.t("recording_studio.brands.labels.active"),
                sortable: false,
-               value: lambda { |recording, _context|
-                 key = recording.recordable&.active ? "active_yes" : "active_no"
-                 RecordingStudio.t("recording_studio.brands.labels.#{key}")
-               }
+               value: ->(recording, _context) { BrandsScreen.active_label(recording) },
+               display: :badge,
+               display_options: ->(recording, _context, _value) { BrandsScreen.active_badge_options(recording) }
         column :website_url,
                title: RecordingStudio.t("recording_studio.brands.labels.website"),
                sortable: false,
@@ -62,6 +67,19 @@ module RecordingStudioBrands
         column :updated_at, title: RecordingStudio.t("recording_studio.brands.admin.updated_column")
         admin_action "brands.show", as: :open
         admin_action "brands.edit"
+      end
+
+      def self.active_label(recording)
+        key = recording.recordable&.active ? "active_yes" : "active_no"
+        RecordingStudio.t("recording_studio.brands.labels.#{key}")
+      end
+
+      def self.active_badge_options(recording)
+        {
+          text: active_label(recording),
+          style: recording.recordable&.active ? :success : :default,
+          size: :sm
+        }
       end
     end
 

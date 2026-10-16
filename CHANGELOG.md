@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Admin Brands index renders Active as a FlatPack Badge (success / default) and
+  exposes a primary Add brand screen button
+- Admin brand show list is full width with labels leading values
+
 ## [0.4.0] - 2026-10-16
 
 ### Added

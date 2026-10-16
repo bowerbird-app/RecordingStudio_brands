@@ -13,26 +13,27 @@
     <% end %>
   <% end %>
 
-  <%= render FlatPack::List::Component.new(divider: true, spacing: :compact, class: "max-w-2xl") do %>
-    <%= render FlatPack::List::Item.new(trailing: @brand.slug) do %>
-      <%= t("recording_studio.brands.labels.slug") %>
+  <%= render FlatPack::List::Component.new(divider: true, spacing: :compact) do %>
+    <%= render FlatPack::List::Item.new(leading: t("recording_studio.brands.labels.slug")) do %>
+      <%= @brand.slug %>
     <% end %>
-    <%= render FlatPack::List::Item.new(
-      trailing: (@brand.active? ? t("recording_studio.brands.labels.active_yes") : t("recording_studio.brands.labels.active_no"))
-    ) do %>
-      <%= t("recording_studio.brands.labels.active") %>
+    <%= render FlatPack::List::Item.new(leading: t("recording_studio.brands.labels.active")) do %>
+      <%= render FlatPack::Badge::Component.new(
+        text: (@brand.active? ? t("recording_studio.brands.labels.active_yes") : t("recording_studio.brands.labels.active_no")),
+        style: (@brand.active? ? :success : :default),
+        size: :sm
+      ) %>
     <% end %>
     <% if @brand.website_url.present? %>
-      <%= render FlatPack::List::Item.new(trailing: @brand.website_url) do %>
-        <%= t("recording_studio.brands.labels.website") %>
+      <%= render FlatPack::List::Item.new(leading: t("recording_studio.brands.labels.website")) do %>
+        <%= render FlatPack::Link::Component.new(href: @brand.website_url) do %>
+          <%= @brand.website_url %>
+        <% end %>
       <% end %>
     <% end %>
     <% if @brand.description.present? %>
-      <%= render FlatPack::List::Item.new do %>
-        <%= render FlatPack::Content::Component.new do %>
-          <p class="text-sm font-medium"><%= t("recording_studio.brands.labels.description") %></p>
-          <p class="mt-1 whitespace-pre-wrap text-sm"><%= @brand.description %></p>
-        <% end %>
+      <%= render FlatPack::List::Item.new(leading: t("recording_studio.brands.labels.description")) do %>
+        <%= @brand.description %>
       <% end %>
     <% end %>
   <% end %>
