@@ -31,15 +31,20 @@ class BrandsAdminTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Add brand"
     assert_includes response.body, RecordingStudioBrands.admin_new_brand_path
+    assert_includes response.body, ">Brands<"
+    refute_includes response.body, "Translation missing"
 
     get "/admin/screens/recording_studio_brands/table"
     assert_response :success
     assert_includes response.body, "Listed brand"
     assert_includes response.body, "listed-brand"
+    assert_includes response.body, ">Name<"
+    assert_includes response.body, ">Active<"
     assert_includes response.body, "badge-success-background-color"
     assert_includes response.body, "badge-default-background-color"
     assert_includes response.body, ">Yes<"
     assert_includes response.body, ">No<"
+    refute_includes response.body, "Translation missing"
 
     get "/recording_studio_brands/admin/brands/#{listed.id}"
     assert_response :success

@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Admin Brands index renders Active as a FlatPack Badge (success / default) and
   exposes a primary Add brand screen button
 - Admin brand show list is full width with labels leading values
+- Admin Brands screen/section/resource copy defers i18n to request time; table
+  column titles use the English strings Admin stores at definition time
 
 ## [0.4.0] - 2026-10-16
 

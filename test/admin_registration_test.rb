@@ -18,12 +18,15 @@ class AdminRegistrationTest < Minitest::Test
     assert_equal :primary, new_button.style
     assert_respond_to new_button.text, :call
     assert_respond_to new_button.url, :call
+    assert_respond_to RecordingStudioBrands::Admin::BrandsScreen.title_value, :call
 
     with_gem_locale_loaded do
       assert_equal "Add brand", new_button.text.call(nil)
+      assert_equal "Brands", RecordingStudioBrands::Admin::BrandsScreen.title_value.call
     end
 
     active_column = RecordingStudioBrands::Admin::BrandsScreen.table_value.columns.find { |column| column.key == :active }
+    assert_equal "Active", active_column.title
     assert_equal :badge, active_column.display
     assert_respond_to active_column.display_options, :call
   end
