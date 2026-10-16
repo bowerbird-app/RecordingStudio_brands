@@ -25,11 +25,17 @@ class AdminRegistrationTest < Minitest::Test
       assert_equal "Brands", RecordingStudioBrands::Admin::BrandsScreen.title_value.call
       RecordingStudioBrands::Admin::BrandsScreen.define_catalogue_table!
       active_column = RecordingStudioBrands::Admin::BrandsScreen.table_value.columns.find { |column| column.key == :active }
-      assert_equal "Active", active_column.title
+      assert_instance_of RecordingStudioBrands::Admin::LazyTitle, active_column.title
+      assert_equal "Active", active_column.title.to_s
       assert_equal :badge, active_column.display
       assert_respond_to active_column.display_options, :call
       slug_column = RecordingStudioBrands::Admin::BrandsScreen.table_value.columns.find { |column| column.key == :slug }
-      assert_equal "Slug", slug_column.title
+      assert_equal "Slug", slug_column.title.to_s
+      admin_source = File.read(File.expand_path("../lib/recording_studio_brands/admin.rb", __dir__))
+      query_chunk = admin_source[/query do.*?^      end/m]
+      refute_nil query_chunk
+      refute_includes query_chunk, "define_catalogue_table!"
+      assert_includes admin_source, "BrandsScreen.define_catalogue_table!"
     end
   end
 

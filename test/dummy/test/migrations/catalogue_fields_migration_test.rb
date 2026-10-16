@@ -61,6 +61,9 @@ class CatalogueFieldsMigrationTest < ActiveSupport::TestCase
       @migration.send(:add_catalogue_columns)
       @migration.send(:assign_missing_slugs!)
       @migration.send(:normalize_legacy_website_urls!)
+      migration_source = File.read(ENGINE_MIGRATION)
+      refute_includes migration_source, "Url.normalize("
+      assert_includes migration_source, "TRACKING_PARAMS ="
       @connection.schema_cache.clear!
 
       row = @connection.select_one(<<~SQL.squish)
@@ -83,16 +86,15 @@ class CatalogueFieldsMigrationTest < ActiveSupport::TestCase
       insert_brand(brand_id, "Rollback Brand")
       insert_recording(parent_id, brand_id)
 
-      @migration.send(:add_catalogue_columns)
-      @migration.send(:assign_missing_slugs!)
+      @migration.migrate(:up)
       @connection.schema_cache.clear!
       assert column_exists?(:slug)
+      assert column_exists?(:active)
+      assert column_exists?(:metadata)
       assert_equal brand_id, brand_id_value(brand_id)
+      assert_equal "rollback-brand", slug_by_id[brand_id]
 
-      @connection.change_column_null :recording_studio_brands, :slug, true
-      @connection.remove_column :recording_studio_brands, :slug
-      @connection.remove_column :recording_studio_brands, :active
-      @connection.remove_column :recording_studio_brands, :metadata
+      @migration.migrate(:down)
       @connection.schema_cache.clear!
 
       refute column_exists?(:slug)
@@ -114,9 +116,19 @@ class CatalogueFieldsMigrationTest < ActiveSupport::TestCase
     restore_saved_tables
   end
 
+  CATALOGUE_INDEX_NAMES = %w[
+    index_recording_studio_brands_on_slug
+    index_recording_studio_brands_on_website_url
+    index_recording_studio_brands_on_active
+    index_recording_studio_brands_on_lower_name
+  ].freeze
+
   def install_pre_catalogue_tables
     @connection.rename_table :recording_studio_brands, :recording_studio_brands_saved
     @connection.rename_table :recording_studio_recordings, :recording_studio_recordings_saved
+    # PostgreSQL keeps index names across table rename; stash catalogue names so
+    # migrate(:up) can recreate them on the temporary brands table.
+    stash_catalogue_index_names!
 
     @connection.create_table :recording_studio_brands, id: :uuid, default: -> { "gen_random_uuid()" } do |table|
       table.string :name, null: false
@@ -144,6 +156,28 @@ class CatalogueFieldsMigrationTest < ActiveSupport::TestCase
     @connection.drop_table :recording_studio_recordings if @connection.table_exists?(:recording_studio_recordings)
     @connection.rename_table :recording_studio_brands_saved, :recording_studio_brands
     @connection.rename_table :recording_studio_recordings_saved, :recording_studio_recordings
+    restore_catalogue_index_names!
+  end
+
+  def stash_catalogue_index_names!
+    CATALOGUE_INDEX_NAMES.each do |name|
+      next unless index_name_exists?(:recording_studio_brands_saved, name)
+
+      @connection.rename_index(:recording_studio_brands_saved, name, "z_#{name}")
+    end
+  end
+
+  def restore_catalogue_index_names!
+    CATALOGUE_INDEX_NAMES.each do |name|
+      stashed = "z_#{name}"
+      next unless index_name_exists?(:recording_studio_brands, stashed)
+
+      @connection.rename_index(:recording_studio_brands, stashed, name)
+    end
+  end
+
+  def index_name_exists?(table, name)
+    @connection.indexes(table).any? { |index| index.name == name }
   end
 
   def insert_brand(id, name, website_url: nil)

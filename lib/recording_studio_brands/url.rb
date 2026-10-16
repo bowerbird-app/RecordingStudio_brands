@@ -5,13 +5,29 @@ require "uri"
 module RecordingStudioBrands
   # Website URL normalization for Brand#website_url.
   #
-  # Matches RecordingStudioPublications::Url.normalize: upgrade http to https,
-  # strip utm_*/fbclid/gclid, give an empty path a trailing "/", keep an explicit
-  # default port on the URI, and leave dotless hosts alone. When publications is
-  # loaded, this delegates so both gems stay identical.
+  # Follows RecordingStudioPublications::Url.normalize (http→https, strip
+  # TRACKING_PARAMS / TRACKING_PARAM_PREFIXES, empty path `/`, keep explicit
+  # non-default ports, leave dotless hosts exactly as typed, normalize
+  # non-HTTP schemes that have a host). When publications is loaded, this
+  # delegates so both gems stay aligned.
   module Url
-    TRACKING_QUERY_KEY = /\A(?:utm_.*|fbclid|gclid)\z/i
-    private_constant :TRACKING_QUERY_KEY
+    # Exact names publications strips (plus utm_ via TRACKING_PARAM_PREFIXES).
+    TRACKING_PARAMS = %w[
+      fbclid
+      gclid
+      gbraid
+      wbraid
+      mc_cid
+      mc_eid
+      _ga
+      _gl
+      igshid
+      si
+    ].freeze
+
+    TRACKING_PARAM_PREFIXES = %w[
+      utm_
+    ].freeze
 
     module_function
 
@@ -24,19 +40,23 @@ module RecordingStudioBrands
       raw = value.is_a?(String) ? value.strip : value.to_s.strip
       return if raw.blank?
 
-      normalize_http_url(raw) || raw.presence
+      normalize_uri(raw) || raw.presence
     end
 
-    def normalize_http_url(raw)
+    def normalize_uri(raw)
       candidate = raw.match?(/\A[a-z][a-z0-9+.-]*:/i) ? raw : "https://#{raw}"
       uri = URI.parse(candidate)
-      return unless uri.is_a?(URI::HTTP) && uri.host.present?
+      return unless uri.host.present?
+
+      # Publications leaves dotless hosts (localhost, intranet names) exactly
+      # as typed — no https:// prefix, no case/path rewrite.
+      return raw unless uri.host.include?(".")
 
       apply_uri_normalize(uri)
     rescue URI::InvalidURIError
       nil
     end
-    module_function :normalize_http_url
+    module_function :normalize_uri
 
     def apply_uri_normalize(uri)
       uri.scheme = "https" if uri.scheme.to_s.casecmp("http").zero?
@@ -49,10 +69,17 @@ module RecordingStudioBrands
     end
     module_function :apply_uri_normalize
 
+    def tracking_param?(key)
+      name = key.to_s.downcase
+      TRACKING_PARAMS.include?(name) ||
+        TRACKING_PARAM_PREFIXES.any? { |prefix| name.start_with?(prefix) }
+    end
+    module_function :tracking_param?
+
     def strip_tracking_query!(uri)
       return if uri.query.blank?
 
-      kept = URI.decode_www_form(uri.query).reject { |key, _value| key.to_s.match?(TRACKING_QUERY_KEY) }
+      kept = URI.decode_www_form(uri.query).reject { |key, _value| tracking_param?(key) }
       uri.query = kept.empty? ? nil : URI.encode_www_form(kept)
     end
     module_function :strip_tracking_query!

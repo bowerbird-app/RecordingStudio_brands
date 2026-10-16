@@ -4,6 +4,28 @@ require "recording_studio_admin"
 
 module RecordingStudioBrands
   module Admin
+    # Admin stores column/table titles as objects and stringifies them in the
+    # view. This wrapper keeps i18n deferred to render time without rebuilding
+    # the class-wide table on every query (which raced across locales).
+    class LazyTitle
+      def initialize(key)
+        @key = key
+      end
+
+      def to_s
+        RecordingStudio.t(@key)
+      end
+      alias to_str to_s
+
+      def present?
+        true
+      end
+
+      def blank?
+        false
+      end
+    end
+
     class BrandsSection < RecordingStudioAdmin::Section
       key "brands"
       title { RecordingStudio.t("recording_studio.brands.admin.section_title") }
@@ -32,7 +54,6 @@ module RecordingStudioBrands
              style: :primary
 
       query do |context|
-        BrandsScreen.define_catalogue_table!
         root = context.root_recording
         next RecordingStudio::Recording.none if root.blank?
         next RecordingStudio::Recording.none unless Mount.for(root)
@@ -45,11 +66,11 @@ module RecordingStudioBrands
         relation.includes(:recordable).order(updated_at: :desc)
       end
 
-      # Admin stores table/column titles as strings. Rebuild from locales in
-      # register! and again when the query runs (after engine locales load).
+      # Built once from register! (and to_prepare). Column titles are LazyTitle
+      # objects so copy still translates at render without per-query rebuilds.
       def self.define_catalogue_table!
         table do
-          title RecordingStudio.t("recording_studio.brands.admin.table_title")
+          title LazyTitle.new("recording_studio.brands.admin.table_title")
           BrandsScreen.define_catalogue_columns(self)
           admin_action "brands.show", as: :open
           admin_action "brands.edit"
@@ -61,19 +82,19 @@ module RecordingStudioBrands
         define_text_column(table, :slug, "labels.slug", :slug)
         define_active_column(table)
         define_text_column(table, :website_url, "labels.website", :website_url)
-        table.column :updated_at, title: RecordingStudio.t("recording_studio.brands.admin.updated_column")
+        table.column :updated_at, title: LazyTitle.new("recording_studio.brands.admin.updated_column")
       end
 
       def self.define_text_column(table, key, label_key, attribute)
         table.column key,
-                     title: RecordingStudio.t("recording_studio.brands.#{label_key}"),
+                     title: LazyTitle.new("recording_studio.brands.#{label_key}"),
                      sortable: false,
                      value: ->(recording, _context) { recording.recordable&.public_send(attribute) }
       end
 
       def self.define_active_column(table)
         table.column :active,
-                     title: RecordingStudio.t("recording_studio.brands.labels.active"),
+                     title: LazyTitle.new("recording_studio.brands.labels.active"),
                      sortable: false,
                      value: ->(recording, _context) { BrandsScreen.active_label(recording) },
                      display: :badge,

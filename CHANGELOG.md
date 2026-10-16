@@ -7,18 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-
-- Admin Brands index renders Active as a FlatPack Badge (success / default) and
-  exposes a primary Add brand screen button
-- Admin brand show list is full width with labels leading values
-- Admin Brands screen/section/resource copy defers i18n to request time; the
-  catalogue table is rebuilt from locales in `register!` and on each query
-- `Url.normalize` matches publications (http→https, strip utm_*/fbclid/gclid,
-  empty path `/`, keep non-default ports, leave dotless hosts)
-- Catalogue migration also normalizes legacy `website_url` values
-- Missing slug parent context adds a validation error instead of raising
-
 ## [0.4.0] - 2026-10-16
 
 ### Added
@@ -29,8 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `slug`, `website_url`, `active`, and `LOWER(name)`
 - Ruby slug backfill via `String#parameterize`, with `-2` / `-3` … suffixes when
   the same parent would otherwise get duplicate slugs
-- `RecordingStudioBrands::Url.normalize` for `website_url` (delegates to
-  `RecordingStudioPublications::Url.normalize` when that constant is loaded)
+- `RecordingStudioBrands::Url.normalize` for `website_url`, with
+  `TRACKING_PARAMS` / `TRACKING_PARAM_PREFIXES` aligned to publications
+  (`fbclid`, `gclid`, `gbraid`, `wbraid`, `mc_cid`, `mc_eid`, `_ga`, `_gl`,
+  `igshid`, `si`, and `utm_*`). Delegates to
+  `RecordingStudioPublications::Url.normalize` when that constant is loaded
+- Catalogue migration embeds its own frozen copy of those normalize rules for
+  legacy `website_url` backfill (does not call live `Url.normalize`)
 - `RecordingStudioBrands::Identity.find_brand` / `find_brand_recording` for
   current brands by slug, name, or website under an optional parent
 - Slug uniqueness among current brands under the same parent
@@ -42,8 +35,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Version `0.3.0` → `0.4.0`
-- Website values are normalized on assign (same rules as publications
-  `Url.normalize`)
+- Website values are normalized on assign (http→https, strip tracking params,
+  empty path becomes `/`, strip trailing slash on non-root paths, leave
+  dotless hosts exactly as typed, normalize non-HTTP schemes that have a host).
+  Host-only websites therefore display with a trailing `/`
+  (for example `https://example.com/`)
 - Slug is filled from the parameterized name when blank
 - Dummy host mounts Admin with an `AdminRoot` that allows many brands
 - Admin copy uses `RecordingStudio.t`; Brand metadata errors use ActiveModel keys
@@ -51,6 +47,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Brands `ApplicationController` matches sibling engines (`UsesDefaultLayout`,
   no host view-path prepend)
 - Admin forms no longer permit `metadata` (column remains for programmatic use)
+- Admin Brands index renders Active as a FlatPack Badge (success / default) and
+  exposes a primary Add brand screen button
+- Admin brand show list is full width with labels leading values
+- Admin Brands screen/section/resource copy and table column titles defer i18n
+  to request/render time; the catalogue table is built once in `register!`
+- Missing slug parent context adds a validation error instead of raising
 
 ### Upgrade notes
 
@@ -61,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    `metadata`. Slugs are backfilled with `parameterize`; duplicate base slugs
    under one parent become `name`, `name-2`, `name-3`, … Legacy `website_url`
    values are normalized so `Identity.find_brand(website_url:)` matches.
+   Host-only sites gain a trailing `/` after normalize.
 3. Mount Admin if hosts need Media brands CRUD when publications drops its
    Brand admin: enable a `brands` section on the admin root recordable, grant
    Accessible access, and ensure that root (or the switched root) includes
@@ -68,10 +71,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 4. Set `parent_recording_id_for_slug` on create/revise when writing brands
    outside this gem's controllers so slug uniqueness can scope to the parent.
    On revise, also set `slug_uniqueness_except_recording_id` to the Brand
-   recording id. Missing parent context adds a slug validation error.
+   recording id. Missing parent context adds a slug validation error. The
+   `SlugParentHook` fills these from `RecordingStudio.record!` when the parent
+   recording is present.
 5. Recordable UUIDs are unchanged by this release. Publications data copy and
    Channel parent cutover remain a later publications PR.
-   `RecordingStudioBrands::Url.normalize` matches publications `Url.normalize`.
 
 ## [0.3.0] - 2026-10-13
 
@@ -120,32 +124,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - To translate or override the defaults, add keys under
   `recording_studio.brands` in the host's locale files.
 - There is no dependency on `recording_studio_internationalization`.
-- ActiveRecord attribute labels under
-  `activerecord.attributes.recording_studio_brands/brand` are unchanged.
 
-## [0.1.0] - 2026-10-06
+## [0.1.0] - 2026-10-08
 
 ### Added
 
-- `RecordingStudioBrands::Brand`, a public identity with name, tagline, description, website, email, phone, and one logo.
-- `RecordingStudio::Capabilities::Brand.to(allows: :one)` and `allows: :many`. The parent class chooses the limit. A one mount refuses a second brand when the recording is created.
-- Screens to view, add, and edit a brand. The brand page shows the details in one card. A many mount lists brand names in a card in the first column of a two-column grid. The edit screen has one button to replace the logo.
-- Install and migration generators, plus a dummy host where a workspace and a folder each hold many brands. A host can still opt a parent into one brand.
+* Initial Recording Studio Brands addon: Brand recordable, mount helpers,
+  product screens, logo attach, and dummy host
 
-### Upgrade
-
-0.1.0 is the first release. There is no earlier brand schema to migrate.
-
-1. Add `recording_studio_brands` and `recording_studio_attachable`.
-2. Run `bin/rails generate recording_studio_attachable:install`, `bin/rails generate recording_studio_attachable:migrations`, `bin/rails generate recording_studio_brands:install`, and `bin/rails generate recording_studio_brands:migrations`.
-3. Run `bin/rails db:migrate`.
-4. Add `"RecordingStudioBrands::Brand"` and `"RecordingStudioAttachable::Attachment"` to `config.recordable_types`.
-5. Include `RecordingStudio::Capabilities::Brand.to(allows: :one)` or `allows: :many` on each parent class that should hold brands. Brand does not pick a default, and it does not name Company, Person, Workspace, or any other parent.
-6. Rebuild Tailwind CSS so the brand screens are styled.
-
-Company, Person, Location, Press Centre, and Press Kit are not part of this gem. Trash, duplicate, and manual ordering stay off.
-
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/bowerbird-app/RecordingStudio_brands/releases/tag/v0.2.0
 [0.1.0]: https://github.com/bowerbird-app/RecordingStudio_brands/releases/tag/v0.1.0

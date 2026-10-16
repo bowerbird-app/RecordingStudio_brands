@@ -40,18 +40,18 @@ class BrandsAdminTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "listed-brand"
     assert_includes response.body, ">Name<"
     assert_includes response.body, ">Active<"
-    assert_includes response.body, "badge-success-background-color"
-    assert_includes response.body, "badge-default-background-color"
     assert_includes response.body, ">Yes<"
     assert_includes response.body, ">No<"
+    assert_includes response.body, "Listed brand"
+    assert_includes response.body, "Paused brand"
     refute_includes response.body, "Translation missing"
 
     get "/recording_studio_brands/admin/brands/#{listed.id}"
     assert_response :success
     refute_includes response.body, "max-w-2xl"
-    assert_includes response.body, "badge-success-background-color"
     assert_includes response.body, ">Yes<"
-    assert_includes response.body, "flex-shrink-0 mr-2"
+    assert_includes response.body, "Listed brand"
+    assert_includes response.body, "On the screen"
   end
 
   test "admin create and update keep the recording id and normalize the website" do

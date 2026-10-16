@@ -89,6 +89,40 @@ class BrandCatalogueFieldsTest < ActiveSupport::TestCase
     assert_includes brand.errors[:slug], "needs a parent recording"
   end
 
+  test "slug_parent_hook scopes uniqueness without parent_recording_id_for_slug" do
+    first = @workspace.record(
+      RecordingStudioBrands::Brand,
+      parent_recording: @workspace,
+      actor: @actor
+    ) do |brand|
+      brand.name = "Hook Brand"
+      brand.slug = "hook-brand"
+    end
+    assert_equal "hook-brand", first.recordable.slug
+
+    error = assert_raises(ActiveRecord::RecordInvalid) do
+      @workspace.record(
+        RecordingStudioBrands::Brand,
+        parent_recording: @workspace,
+        actor: @actor
+      ) do |brand|
+        brand.name = "Hook Brand Two"
+        brand.slug = "hook-brand"
+      end
+    end
+    assert_includes error.record.errors[:slug], "has already been taken"
+
+    other = @other.record(
+      RecordingStudioBrands::Brand,
+      parent_recording: @other,
+      actor: @actor
+    ) do |brand|
+      brand.name = "Hook Brand Other"
+      brand.slug = "hook-brand"
+    end
+    assert_equal "hook-brand", other.recordable.slug
+  end
+
   test "metadata that is not a hash uses the ActiveModel error key" do
     brand = RecordingStudioBrands::Brand.new(name: "Meta", slug: "meta", metadata: "nope")
     brand.parent_recording_id_for_slug = @workspace.id
