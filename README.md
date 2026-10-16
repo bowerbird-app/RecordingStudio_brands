@@ -130,6 +130,12 @@ Hosts that need Media brands admin after publications drops its Brand screens:
 
 The dummy mounts Admin at `/admin` with `AdminRoot` as a many-brand parent.
 
+The Brands admin screen shows a primary **Add brand** button and renders the
+Active column as FlatPack badges (success when live, default when off). Show
+uses a full-width FlatPack list with labels leading values. Screen, section,
+and resource copy resolve through request-time i18n; Admin table column titles
+are English strings (Admin stores them at definition time).
+
 ### Interface text
 
 Static interface copy on the gem's brand screens and controller flashes uses
