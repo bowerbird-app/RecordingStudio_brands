@@ -2,7 +2,7 @@
 
 This Rails app exists to try Brand inside a host that is not Company or Person.
 
-Workspace and Folder allow many brands. Page allows none. Studio Workspace is seeded with Taylor Swift, Dove, and Acme Coffee. Product Docs is seeded with Nike, Dove, and Acme Coffee. Client Workspace is empty. Private Workspace is not shared with the seeded admin.
+Workspace, Folder, and AdminRoot allow many brands. Page allows none. Studio Workspace is seeded with Taylor Swift, Dove, and Acme Coffee. Product Docs is seeded with Nike, Dove, and Acme Coffee. Client Workspace is empty. Private Workspace is not shared with the seeded admin. Admin is mounted at `/admin` with a Brands section under AdminRoot.
 
 ## What It Covers
 

@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-16
+
+### Added
+
+- Catalogue fields on `RecordingStudioBrands::Brand`: `slug` (required), `active`
+  (boolean, default true), and `metadata` (jsonb, default `{}`)
+- Migration `add_catalogue_fields_to_recording_studio_brands` with indexes on
+  `slug`, `website_url`, `active`, and `LOWER(name)`
+- `RecordingStudioBrands::Url.normalize` for `website_url` (delegates to
+  `RecordingStudioPublications::Url.normalize` when that constant is loaded)
+- `RecordingStudioBrands::Identity.find_brand` / `find_brand_recording` for
+  current brands by slug, name, or website under an optional parent
+- Slug uniqueness among current brands under the same parent
+- Recording Studio Admin section/screen/resource for Brands CRUD under the
+  current root (`blast_radius :root`), with engine routes at
+  `/recording_studio_brands/admin/brands`
+- Gem dependency on `recording_studio_admin` `~> 2.0`
+
+### Changed
+
+- Version `0.3.0` → `0.4.0`
+- Website values are normalized on assign (https when missing, downcased host)
+- Slug is filled from the parameterized name when blank
+- Dummy host mounts Admin with an `AdminRoot` that allows many brands
+
+### Upgrade notes
+
+1. Bump to `recording_studio_brands` `0.4.0` and add `recording_studio_admin`
+   (`~> 2.0`; dummy pin `v2.3.2`).
+2. Run `bin/rails generate recording_studio_brands:migrations` and
+   `bin/rails db:migrate` so existing brand rows get `slug` / `active` /
+   `metadata` (slugs are backfilled from name).
+3. Mount Admin if hosts need Media brands CRUD when publications drops its
+   Brand admin: enable a `brands` section on the admin root recordable, grant
+   Accessible access, and ensure that root (or the switched root) includes
+   `RecordingStudio::Capabilities::Brand.to(allows: :many)`.
+4. Set `parent_recording_id_for_slug` on create/revise when writing brands
+   outside this gem's controllers so slug uniqueness can scope to the parent.
+   On revise, also set `slug_uniqueness_except_recording_id` to the Brand
+   recording id.
+5. Recordable UUIDs are unchanged by this release. Publications data copy and
+   Channel parent cutover remain a later publications PR.
+
 ## [0.3.0] - 2026-10-13
 
 ### Added
