@@ -1,6 +1,18 @@
 # frozen_string_literal: true
 
 class AddCatalogueFieldsToRecordingStudioBrands < ActiveRecord::Migration[8.1]
+  SLUG_BACKFILL_SQL = <<~SQL.squish
+    UPDATE recording_studio_brands
+    SET slug = COALESCE(
+      NULLIF(
+        TRIM(BOTH '-' FROM REGEXP_REPLACE(LOWER(name), '[^a-z0-9]+', '-', 'g')),
+        ''
+      ),
+      REPLACE(id::text, '-', '')
+    )
+    WHERE slug IS NULL OR slug = ''
+  SQL
+
   def change
     add_catalogue_columns
     backfill_slugs
@@ -17,21 +29,13 @@ class AddCatalogueFieldsToRecordingStudioBrands < ActiveRecord::Migration[8.1]
 
   def backfill_slugs
     reversible do |dir|
-      dir.up do
-        execute <<~SQL.squish
-          UPDATE recording_studio_brands
-          SET slug = COALESCE(
-            NULLIF(
-              TRIM(BOTH '-' FROM REGEXP_REPLACE(LOWER(name), '[^a-z0-9]+', '-', 'g')),
-              ''
-            ),
-            REPLACE(id::text, '-', '')
-          )
-          WHERE slug IS NULL OR slug = ''
-        SQL
-        change_column_null :recording_studio_brands, :slug, false
-      end
+      dir.up { assign_missing_slugs! }
     end
+  end
+
+  def assign_missing_slugs!
+    execute SLUG_BACKFILL_SQL
+    change_column_null :recording_studio_brands, :slug, false
   end
 
   def add_catalogue_indexes
