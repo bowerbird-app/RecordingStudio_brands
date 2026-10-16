@@ -5,25 +5,11 @@ require "uri"
 class AddCatalogueFieldsToRecordingStudioBrands < ActiveRecord::Migration[8.1] # rubocop:disable Metrics/ClassLength
   BRAND_TYPE = "RecordingStudioBrands::Brand"
 
-  # Frozen snapshot of website normalize rules at migration write time. Do not
-  # call the live Url helper — later gem changes must not alter what this
-  # backfill already did for hosts that re-run or inspect the file.
-  TRACKING_PARAMS = %w[
-    fbclid
-    gclid
-    gbraid
-    wbraid
-    mc_cid
-    mc_eid
-    _ga
-    _gl
-    igshid
-    si
-  ].freeze
-
-  TRACKING_PARAM_PREFIXES = %w[
-    utm_
-  ].freeze
+  # Frozen snapshot of publications Url.normalize rules at migration write
+  # time. Do not call the live Url helper — later gem changes must not alter
+  # what this backfill already did for hosts that re-run or inspect the file.
+  TRACKING_PARAM_PREFIXES = %w[utm_].freeze
+  TRACKING_PARAMS = %w[fbclid gclid gbraid wbraid mc_cid mc_eid _ga _gl igshid si].freeze
 
   def change
     add_catalogue_columns
@@ -64,52 +50,50 @@ class AddCatalogueFieldsToRecordingStudioBrands < ActiveRecord::Migration[8.1] #
   end
 
   def normalize_website_url(value)
-    raw = value.is_a?(String) ? value.strip : value.to_s.strip
-    return if raw.blank?
+    text = value.to_s.strip
+    return if text.empty?
 
-    normalize_website_uri(raw) || raw.presence
-  end
+    uri = parse_website_url(text)
+    return text if uri.nil? || uri.host.nil?
 
-  def normalize_website_uri(raw)
-    candidate = raw.match?(/\A[a-z][a-z0-9+.-]*:/i) ? raw : "https://#{raw}"
-    uri = URI.parse(candidate)
-    return unless uri.host.present?
-    return raw unless uri.host.include?(".")
-
-    apply_website_normalize(uri)
+    canonicalize_website_url(uri).to_s
   rescue URI::InvalidURIError
-    nil
+    text
   end
 
-  def apply_website_normalize(uri)
-    uri.scheme = "https" if uri.scheme.to_s.casecmp("http").zero?
-    uri.scheme = uri.scheme.downcase
-    uri.host = uri.host.downcase
+  def parse_website_url(text)
+    uri = URI.parse(text)
+    return uri unless uri.scheme.nil? && uri.host.nil? && text.include?(".")
+
+    URI.parse("https://#{text}")
+  end
+
+  def canonicalize_website_url(uri)
     uri.fragment = nil
-    strip_tracking_query!(uri)
-    ensure_website_path!(uri)
-    uri.to_s
+    uri.host = uri.host.downcase
+    uri.scheme = "https" if uri.scheme == "http"
+    uri.query = cleaned_website_query(uri.query)
+    uri.path = normalized_website_path(uri.path)
+    uri
   end
 
-  def strip_tracking_query!(uri)
-    return if uri.query.blank?
-
-    kept = URI.decode_www_form(uri.query).reject do |key, _value|
-      name = key.to_s.downcase
-      TRACKING_PARAMS.include?(name) ||
-        TRACKING_PARAM_PREFIXES.any? { |prefix| name.start_with?(prefix) }
-    end
-    uri.query = kept.empty? ? nil : URI.encode_www_form(kept)
+  def normalized_website_path(path)
+    trimmed = path.to_s.sub(%r{/\z}, "")
+    trimmed.empty? ? "/" : trimmed
   end
 
-  def ensure_website_path!(uri)
-    path = uri.path.to_s
-    if path.blank?
-      uri.path = "/"
-      return
-    end
+  def cleaned_website_query(query)
+    return if query.nil? || query.empty?
 
-    uri.path = path == "/" ? "/" : path.sub(%r{/\z}, "")
+    params = URI.decode_www_form(query).reject { |key, _value| website_tracking_param?(key) }
+    return if params.empty?
+
+    URI.encode_www_form(params)
+  end
+
+  def website_tracking_param?(key)
+    name = key.to_s.downcase
+    TRACKING_PARAMS.include?(name) || TRACKING_PARAM_PREFIXES.any? { |prefix| name.start_with?(prefix) }
   end
 
   def assign_slug_for_row!(row, taken)

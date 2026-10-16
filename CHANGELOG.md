@@ -17,11 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `slug`, `website_url`, `active`, and `LOWER(name)`
 - Ruby slug backfill via `String#parameterize`, with `-2` / `-3` … suffixes when
   the same parent would otherwise get duplicate slugs
-- `RecordingStudioBrands::Url.normalize` for `website_url`, with
-  `TRACKING_PARAMS` / `TRACKING_PARAM_PREFIXES` aligned to publications
-  (`fbclid`, `gclid`, `gbraid`, `wbraid`, `mc_cid`, `mc_eid`, `_ga`, `_gl`,
-  `igshid`, `si`, and `utm_*`). Delegates to
-  `RecordingStudioPublications::Url.normalize` when that constant is loaded
+- `RecordingStudioBrands::Url.normalize` for `website_url` — matches
+  publications `Url.normalize` (`TRACKING_PARAM_PREFIXES` / `TRACKING_PARAMS`,
+  parse, canonicalize, normalized_path, cleaned_query, tracking_param?).
+  Delegates to `RecordingStudioPublications::Url.normalize` when loaded
 - Catalogue migration embeds its own frozen copy of those normalize rules for
   legacy `website_url` backfill (does not call live `Url.normalize`)
 - `RecordingStudioBrands::Identity.find_brand` / `find_brand_recording` for
@@ -35,11 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Version `0.3.0` → `0.4.0`
-- Website values are normalized on assign (http→https, strip tracking params,
-  empty path becomes `/`, strip trailing slash on non-root paths, leave
-  dotless hosts exactly as typed, normalize non-HTTP schemes that have a host).
-  Host-only websites therefore display with a trailing `/`
-  (for example `https://example.com/`)
+- Website values are normalized on assign to match publications Url rules
+  (http→https, strip tracking params, empty path `/`, strip trailing slash on
+  non-root paths, bare dotless names like `localhost` stay typed,
+  `https://localhost` becomes `https://localhost/`). Host-only websites
+  therefore display with a trailing `/` (for example `https://example.com/`)
 - Slug is filled from the parameterized name when blank
 - Dummy host mounts Admin with an `AdminRoot` that allows many brands
 - Admin copy uses `RecordingStudio.t`; Brand metadata errors use ActiveModel keys
@@ -76,6 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    recording is present.
 5. Recordable UUIDs are unchanged by this release. Publications data copy and
    Channel parent cutover remain a later publications PR.
+   `RecordingStudioBrands::Url.normalize` matches publications `Url.normalize`.
 
 ## [0.3.0] - 2026-10-13
 

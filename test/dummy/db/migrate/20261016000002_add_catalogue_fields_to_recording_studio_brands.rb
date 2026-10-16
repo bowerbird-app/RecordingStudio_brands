@@ -5,25 +5,11 @@ require "uri"
 class AddCatalogueFieldsToRecordingStudioBrands < ActiveRecord::Migration[8.1] # rubocop:disable Metrics/ClassLength
   BRAND_TYPE = "RecordingStudioBrands::Brand"
 
-  # Frozen snapshot of website normalize rules at migration write time. Do not
-  # call the live Url helper — later gem changes must not alter what this
-  # backfill already did for hosts that re-run or inspect the file.
-  TRACKING_PARAMS = %w[
-    fbclid
-    gclid
-    gbraid
-    wbraid
-    mc_cid
-    mc_eid
-    _ga
-    _gl
-    igshid
-    si
-  ].freeze
-
-  TRACKING_PARAM_PREFIXES = %w[
-    utm_
-  ].freeze
+  # Frozen snapshot of publications Url.normalize rules at migration write
+  # time. Do not call the live Url helper — later gem changes must not alter
+  # what this backfill already did for hosts that re-run or inspect the file.
+  TRACKING_PARAM_PREFIXES = %w[utm_].freeze
+  TRACKING_PARAMS = %w[fbclid gclid gbraid wbraid mc_cid mc_eid _ga _gl igshid si].freeze
 
   def change
     add_catalogue_columns

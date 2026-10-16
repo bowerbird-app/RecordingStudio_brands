@@ -5,29 +5,12 @@ require "uri"
 module RecordingStudioBrands
   # Website URL normalization for Brand#website_url.
   #
-  # Follows RecordingStudioPublications::Url.normalize (http→https, strip
-  # TRACKING_PARAMS / TRACKING_PARAM_PREFIXES, empty path `/`, keep explicit
-  # non-default ports, leave dotless hosts exactly as typed, normalize
-  # non-HTTP schemes that have a host). When publications is loaded, this
-  # delegates so both gems stay aligned.
+  # Matches RecordingStudioPublications::Url.normalize (same TRACKING_* lists,
+  # parse rule, canonicalize, normalized_path, cleaned_query, tracking_param?).
+  # When publications is loaded, this delegates so both gems stay identical.
   module Url
-    # Exact names publications strips (plus utm_ via TRACKING_PARAM_PREFIXES).
-    TRACKING_PARAMS = %w[
-      fbclid
-      gclid
-      gbraid
-      wbraid
-      mc_cid
-      mc_eid
-      _ga
-      _gl
-      igshid
-      si
-    ].freeze
-
-    TRACKING_PARAM_PREFIXES = %w[
-      utm_
-    ].freeze
+    TRACKING_PARAM_PREFIXES = %w[utm_].freeze
+    TRACKING_PARAMS = %w[fbclid gclid gbraid wbraid mc_cid mc_eid _ga _gl igshid si].freeze
 
     module_function
 
@@ -37,62 +20,60 @@ module RecordingStudioBrands
         return ::RecordingStudioPublications::Url.normalize(value)
       end
 
-      raw = value.is_a?(String) ? value.strip : value.to_s.strip
-      return if raw.blank?
-
-      normalize_uri(raw) || raw.presence
+      normalize_locally(value)
     end
 
-    def normalize_uri(raw)
-      candidate = raw.match?(/\A[a-z][a-z0-9+.-]*:/i) ? raw : "https://#{raw}"
-      uri = URI.parse(candidate)
-      return unless uri.host.present?
+    def normalize_locally(value)
+      text = value.to_s.strip
+      return if text.empty?
 
-      # Publications leaves dotless hosts (localhost, intranet names) exactly
-      # as typed — no https:// prefix, no case/path rewrite.
-      return raw unless uri.host.include?(".")
+      uri = parse(text)
+      return text if uri.nil? || uri.host.nil?
 
-      apply_uri_normalize(uri)
+      canonicalize(uri).to_s
     rescue URI::InvalidURIError
-      nil
+      text
     end
-    module_function :normalize_uri
+    module_function :normalize_locally
 
-    def apply_uri_normalize(uri)
-      uri.scheme = "https" if uri.scheme.to_s.casecmp("http").zero?
-      uri.scheme = uri.scheme.downcase
-      uri.host = uri.host.downcase
-      uri.fragment = nil
-      strip_tracking_query!(uri)
-      ensure_path!(uri)
-      uri.to_s
+    def parse(text)
+      uri = URI.parse(text)
+      return uri unless uri.scheme.nil? && uri.host.nil? && text.include?(".")
+
+      URI.parse("https://#{text}")
     end
-    module_function :apply_uri_normalize
+    module_function :parse
+
+    def canonicalize(uri)
+      uri.fragment = nil
+      uri.host = uri.host.downcase
+      uri.scheme = "https" if uri.scheme == "http"
+      uri.query = cleaned_query(uri.query)
+      uri.path = normalized_path(uri.path)
+      uri
+    end
+    module_function :canonicalize
+
+    def normalized_path(path)
+      trimmed = path.to_s.sub(%r{/\z}, "")
+      trimmed.empty? ? "/" : trimmed
+    end
+    module_function :normalized_path
+
+    def cleaned_query(query)
+      return if query.nil? || query.empty?
+
+      params = URI.decode_www_form(query).reject { |key, _value| tracking_param?(key) }
+      return if params.empty?
+
+      URI.encode_www_form(params)
+    end
+    module_function :cleaned_query
 
     def tracking_param?(key)
       name = key.to_s.downcase
-      TRACKING_PARAMS.include?(name) ||
-        TRACKING_PARAM_PREFIXES.any? { |prefix| name.start_with?(prefix) }
+      TRACKING_PARAMS.include?(name) || TRACKING_PARAM_PREFIXES.any? { |prefix| name.start_with?(prefix) }
     end
     module_function :tracking_param?
-
-    def strip_tracking_query!(uri)
-      return if uri.query.blank?
-
-      kept = URI.decode_www_form(uri.query).reject { |key, _value| tracking_param?(key) }
-      uri.query = kept.empty? ? nil : URI.encode_www_form(kept)
-    end
-    module_function :strip_tracking_query!
-
-    def ensure_path!(uri)
-      path = uri.path.to_s
-      if path.blank?
-        uri.path = "/"
-        return
-      end
-
-      uri.path = path == "/" ? "/" : path.sub(%r{/\z}, "")
-    end
-    module_function :ensure_path!
   end
 end

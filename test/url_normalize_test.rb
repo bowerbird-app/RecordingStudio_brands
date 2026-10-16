@@ -2,8 +2,7 @@
 
 require "test_helper"
 
-# Brands Url.normalize suite. Cases mirror publications Url expectations
-# (TRACKING_PARAMS / TRACKING_PARAM_PREFIXES, dotless hosts, ftp:// with host).
+# Parity suite for RecordingStudioPublications::Url.normalize.
 class UrlNormalizeTest < Minitest::Test
   def test_blank_becomes_nil
     assert_nil RecordingStudioBrands::Url.normalize(nil)
@@ -19,7 +18,7 @@ class UrlNormalizeTest < Minitest::Test
     assert_equal "https://example.com/", RecordingStudioBrands::Url.normalize("http://example.com")
   end
 
-  def test_downcases_scheme_and_host
+  def test_downcases_host
     assert_equal "https://example.com/path",
                  RecordingStudioBrands::Url.normalize("HTTPS://Example.COM/path")
   end
@@ -47,10 +46,10 @@ class UrlNormalizeTest < Minitest::Test
                  RecordingStudioBrands::Url.normalize("https://example.com/?#{query}&keep=1")
   end
 
-  def test_tracking_params_constant_lists_publication_names
+  def test_tracking_constants_match_publications
+    assert_equal %w[utm_], RecordingStudioBrands::Url::TRACKING_PARAM_PREFIXES
     assert_equal %w[fbclid gclid gbraid wbraid mc_cid mc_eid _ga _gl igshid si],
                  RecordingStudioBrands::Url::TRACKING_PARAMS
-    assert_equal %w[utm_], RecordingStudioBrands::Url::TRACKING_PARAM_PREFIXES
   end
 
   def test_keeps_non_default_port
@@ -58,10 +57,20 @@ class UrlNormalizeTest < Minitest::Test
                  RecordingStudioBrands::Url.normalize("http://example.com:8080")
   end
 
-  def test_leaves_dotless_hosts_exactly_as_typed
+  def test_bare_localhost_stays_as_typed
     assert_equal "localhost", RecordingStudioBrands::Url.normalize("localhost")
-    assert_equal "http://localhost/path",
+  end
+
+  def test_localhost_with_scheme_is_canonicalized
+    assert_equal "https://localhost/", RecordingStudioBrands::Url.normalize("https://localhost")
+    assert_equal "https://localhost/path",
                  RecordingStudioBrands::Url.normalize("http://localhost/path")
+  end
+
+  def test_parse_only_prefixes_schemeless_dotted_hosts
+    assert_equal "intranet", RecordingStudioBrands::Url.normalize("intranet")
+    assert_equal "https://intranet.example/",
+                 RecordingStudioBrands::Url.normalize("intranet.example")
   end
 
   def test_normalizes_non_http_schemes_with_a_host
@@ -79,5 +88,14 @@ class UrlNormalizeTest < Minitest::Test
     assert RecordingStudioBrands::Url.tracking_param?("utm_campaign")
     assert RecordingStudioBrands::Url.tracking_param?("GBRAID")
     refute RecordingStudioBrands::Url.tracking_param?("keep")
+  end
+
+  def test_normalized_path_and_cleaned_query_helpers
+    assert_equal "/", RecordingStudioBrands::Url.normalized_path("")
+    assert_equal "/", RecordingStudioBrands::Url.normalized_path("/")
+    assert_equal "/path", RecordingStudioBrands::Url.normalized_path("/path/")
+    assert_nil RecordingStudioBrands::Url.cleaned_query(nil)
+    assert_nil RecordingStudioBrands::Url.cleaned_query("utm_source=x")
+    assert_equal "keep=1", RecordingStudioBrands::Url.cleaned_query("utm_source=x&keep=1")
   end
 end
