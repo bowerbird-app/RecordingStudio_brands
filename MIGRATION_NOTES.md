@@ -23,7 +23,7 @@ bin/rails generate recording_studio_brands:migrations
 bin/rails db:migrate
 ```
 
-The catalogue migration adds `slug`, `active`, and `metadata` on `recording_studio_brands`. Empty slugs are backfilled in Ruby with `String#parameterize` (so names like `Café` become `cafe`). When more than one brand under the same parent would share a base slug, later rows get `-2`, `-3`, … suffixes. Existing `website_url` values are rewritten with a frozen copy of the normalize rules embedded in the migration (same tracking-param list and path rules as `RecordingStudioBrands::Url.normalize` at write time) so website finders match legacy rows without calling the live helper.
+The catalogue migration adds `slug`, `active`, and `metadata` on `recording_studio_brands`. Empty slugs are backfilled in Ruby with `String#parameterize` (so names like `Café` become `cafe`). When more than one brand under the same parent would share a base slug, later rows get `-2`, `-3`, … suffixes. Existing `website_url` values are rewritten with a frozen copy of the normalize rules embedded in the migration — that copy follows the publications `Url.normalize` rules (`TRACKING_PARAM_PREFIXES` / `TRACKING_PARAMS`, parse, canonicalize, path, and query cleaning) so website finders match legacy rows without calling the live helper.
 
 ## Verification
 

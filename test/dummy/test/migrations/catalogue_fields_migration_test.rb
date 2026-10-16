@@ -9,12 +9,20 @@ class CatalogueFieldsMigrationTest < ActiveSupport::TestCase
     "../../../../db/migrate/20261016000001_add_catalogue_fields_to_recording_studio_brands.rb",
     __dir__
   )
+  DUMMY_MIGRATION = File.expand_path(
+    "../../db/migrate/20261016000002_add_catalogue_fields_to_recording_studio_brands.rb",
+    __dir__
+  )
 
   setup do
     load ENGINE_MIGRATION
     @connection = ActiveRecord::Base.connection
     @migration = AddCatalogueFieldsToRecordingStudioBrands.new
     @migration.verbose = false
+  end
+
+  test "dummy catalogue migration matches the engine migration byte for byte" do
+    assert_equal File.binread(ENGINE_MIGRATION), File.binread(DUMMY_MIGRATION)
   end
 
   teardown do
