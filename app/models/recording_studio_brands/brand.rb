@@ -59,19 +59,25 @@ module RecordingStudioBrands
 
     def slug_unique_among_current_under_parent
       return if slug.blank?
-
-      parent_id = parent_recording_id_for_slug.presence || parent_recording_id_from_current_link
-      return if parent_id.blank?
-
-      conflict = self.class.current
-                     .where(slug: slug, recording_studio_recordings: { parent_recording_id: parent_id })
-      conflict = conflict.where.not(id: id) if id
-      if slug_uniqueness_except_recording_id.present?
-        conflict = conflict.where.not(recording_studio_recordings: { id: slug_uniqueness_except_recording_id })
-      end
-      return unless conflict.exists?
+      return unless conflicting_current_slug.exists?
 
       errors.add(:slug, :taken)
+    end
+
+    def conflicting_current_slug
+      parent_id = parent_recording_id_for_slug.presence || parent_recording_id_from_current_link
+      return self.class.none if parent_id.blank?
+
+      exclude_self_from_slug_conflicts(
+        self.class.current.where(slug: slug, recording_studio_recordings: { parent_recording_id: parent_id })
+      )
+    end
+
+    def exclude_self_from_slug_conflicts(relation)
+      relation = relation.where.not(id: id) if id
+      return relation if slug_uniqueness_except_recording_id.blank?
+
+      relation.where.not(recording_studio_recordings: { id: slug_uniqueness_except_recording_id })
     end
 
     def parent_recording_id_from_current_link

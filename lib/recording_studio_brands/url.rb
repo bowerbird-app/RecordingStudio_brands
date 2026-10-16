@@ -22,21 +22,35 @@ module RecordingStudioBrands
       raw = value.is_a?(String) ? value.strip : value.to_s.strip
       return if raw.blank?
 
+      normalize_http_url(raw) || raw.presence
+    end
+
+    def normalize_http_url(raw)
       candidate = raw.match?(/\A[a-z][a-z0-9+.-]*:/i) ? raw : "https://#{raw}"
       uri = URI.parse(candidate)
-      return raw unless uri.is_a?(URI::HTTP) && uri.host.present?
+      return unless uri.is_a?(URI::HTTP) && uri.host.present?
 
+      apply_uri_normalize(uri)
+    rescue URI::InvalidURIError
+      nil
+    end
+    module_function :normalize_http_url
+
+    def apply_uri_normalize(uri)
       uri.scheme = uri.scheme.downcase
       uri.host = uri.host.downcase
       uri.port = nil if uri.port == uri.default_port
       uri.fragment = nil
-      uri.path = uri.path.to_s.sub(%r{/\z}, "")
-      uri.path = "" if uri.path == "/"
       uri.query = uri.query.presence
-
+      trim_uri_path!(uri)
       uri.to_s
-    rescue URI::InvalidURIError
-      raw.presence
     end
+    module_function :apply_uri_normalize
+
+    def trim_uri_path!(uri)
+      path = uri.path.to_s.sub(%r{/\z}, "")
+      uri.path = path == "/" ? "" : path
+    end
+    module_function :trim_uri_path!
   end
 end

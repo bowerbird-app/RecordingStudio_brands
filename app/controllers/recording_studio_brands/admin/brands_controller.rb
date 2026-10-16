@@ -2,7 +2,7 @@
 
 module RecordingStudioBrands
   module Admin
-    class BrandsController < ApplicationController
+    class BrandsController < ApplicationController # rubocop:disable Metrics/ClassLength
       include RecordingStudioAdmin::AdminActionAuditing if defined?(RecordingStudioAdmin::AdminActionAuditing)
 
       before_action :authenticate_brands_actor!
@@ -20,20 +20,10 @@ module RecordingStudioBrands
         parent = brand_parent
         return render_missing_root if parent.blank?
 
-        recording = write_brand!(:new, parent, audit_action: :create) do
-          parent.record(Brand, parent_recording: parent, actor: brands_actor) do |brand|
-            assign_brand_attributes(brand, parent)
-          end
-        end
+        recording = create_brand_recording!(parent)
         redirect_to admin_brand_path(recording), notice: brand_saved_notice
       rescue BrandLimitReached
-        flash.now[:alert] = t(
-          "recording_studio.brands.flashes.brand_limit",
-          type: parent.type_label.downcase,
-          default: "This %{type} already has a brand."
-        )
-        assign_form_from_params
-        render :new, status: :unprocessable_content
+        render_brand_limit(parent)
       rescue ActiveRecord::RecordInvalid => e
         render_invalid(:new, e)
       end
@@ -55,6 +45,25 @@ module RecordingStudioBrands
       end
 
       private
+
+      def create_brand_recording!(parent)
+        write_brand!(:new, parent, audit_action: :create) do
+          parent.record(Brand, parent_recording: parent, actor: brands_actor) do |brand|
+            assign_brand_attributes(brand, parent)
+          end
+        end
+      end
+
+      def render_brand_limit(parent)
+        flash.now[:alert] = t(
+          "recording_studio.brands.flashes.brand_limit",
+          type: parent.type_label.downcase,
+          # rubocop:disable-next Style/FormatStringToken -- I18n interpolation
+          default: "This %{type} already has a brand."
+        )
+        assign_form_from_params
+        render :new, status: :unprocessable_content
+      end
 
       def authorize_brand!
         return head(:forbidden) unless defined?(RecordingStudioAdmin)
@@ -152,10 +161,6 @@ module RecordingStudioBrands
         brand.parent_recording_id_for_slug = parent.id
         brand.slug_uniqueness_except_recording_id = @brand_recording&.id
         brand.assign_attributes(brand_attributes)
-      end
-
-      def brands_screen_path
-        recording_studio_admin_context.admin_screen_path("recording_studio_brands")
       end
 
       def render_missing_root
