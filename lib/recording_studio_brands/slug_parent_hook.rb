@@ -15,7 +15,9 @@ module RecordingStudioBrands
 
     def assign_slug_parent(payload)
       recordable = payload[:recordable]
-      return unless recordable.class.name == BRAND_TYPE
+      # Compare the class name so gem-suite tests can exercise the hook without
+      # loading the ActiveRecord Brand model.
+      return unless recordable.class.name == BRAND_TYPE # rubocop:disable Style/ClassEqualityComparison
 
       apply_slug_parent(recordable, payload)
     end
