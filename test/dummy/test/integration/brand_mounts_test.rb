@@ -34,7 +34,9 @@ class BrandMountsTest < ActiveSupport::TestCase
   test "a direct Recording.create! of a second one-brand workspace brand raises" do
     with_brand_options(Workspace, allows: :one) do
       record_brand(@workspace, "Taylor Swift")
-      second_brand = RecordingStudioBrands::Brand.create!(name: "Taylor's Version")
+      second_brand = RecordingStudioBrands::Brand.new(name: "Taylor's Version")
+      second_brand.parent_recording_id_for_slug = @workspace.id
+      second_brand.save!
 
       assert_raises(RecordingStudioBrands::BrandLimitReached) do
         RecordingStudio::Recording.create!(parent_recording: @workspace, recordable: second_brand)
@@ -57,7 +59,11 @@ class BrandMountsTest < ActiveSupport::TestCase
     brand_recording = record_brand(@workspace, "Taylor Swift")
     original_brand = brand_recording.recordable
 
-    revised = @workspace.revise(brand_recording, actor: @actor) { |brand| brand.tagline = "The Eras Tour" }
+    revised = @workspace.revise(brand_recording, actor: @actor) do |brand|
+      brand.parent_recording_id_for_slug = @workspace.id
+      brand.slug_uniqueness_except_recording_id = brand_recording.id
+      brand.tagline = "The Eras Tour"
+    end
 
     assert_equal brand_recording.id, revised.id
     assert_equal "The Eras Tour", RecordingStudio::Recording.find(brand_recording.id).recordable.tagline
@@ -88,7 +94,9 @@ class BrandMountsTest < ActiveSupport::TestCase
   end
 
   test "a brand cannot be a root" do
-    brand = RecordingStudioBrands::Brand.create!(name: "Nike")
+    brand = RecordingStudioBrands::Brand.new(name: "Nike")
+    brand.parent_recording_id_for_slug = @folder.id
+    brand.save!
 
     assert_raises(RecordingStudio::RootNotAllowed) { RecordingStudio.root_recording_for(brand) }
     assert_raises(ActiveRecord::RecordInvalid) { RecordingStudio::Recording.create!(recordable: brand) }
@@ -99,6 +107,7 @@ class BrandMountsTest < ActiveSupport::TestCase
     assert_raises(ActiveRecord::RecordInvalid) { record_brand(@folder, "   ") }
 
     brand_recording = @folder.record(RecordingStudioBrands::Brand, parent_recording: @folder, actor: @actor) do |brand|
+      brand.parent_recording_id_for_slug = @folder.id
       brand.name = "  Nike  "
       brand.tagline = "   "
     end
@@ -114,7 +123,7 @@ class BrandMountsTest < ActiveSupport::TestCase
     brand_recording = record_brand(@folder, "Nike")
 
     assert_equal child_type, brand_recording.recordable_type
-    assert_equal [ "Folder", "Workspace" ], RecordingStudio.capability_parent_types_for(child_type)
+    assert_equal %w[AdminRoot Folder Workspace], RecordingStudio.capability_parent_types_for(child_type).sort
   end
 
   test "brands need no company or person model" do
@@ -164,7 +173,10 @@ class BrandMountsTest < ActiveSupport::TestCase
   private
 
   def record_brand(parent, name)
-    parent.record(RecordingStudioBrands::Brand, parent_recording: parent, actor: @actor) { |brand| brand.name = name }
+    parent.record(RecordingStudioBrands::Brand, parent_recording: parent, actor: @actor) do |brand|
+      brand.parent_recording_id_for_slug = parent.id
+      brand.name = name
+    end
   end
 
   def brand_names_under(parent)

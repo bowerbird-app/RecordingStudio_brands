@@ -1,8 +1,13 @@
 # frozen_string_literal: true
 
 module RecordingStudioBrands
-  class ApplicationController < ActionController::Base
+  class ApplicationController < (defined?(::ApplicationController) ? ::ApplicationController : ActionController::Base)
     include RecordingStudio::UsesDefaultLayout
+
+    # UsesDefaultLayout does nothing when the host controller already includes it, and the host may
+    # pick another layout for its own pages, so Brands pages set both explicitly.
+    layout "recording_studio/default_layout"
+    helper RecordingStudio::LayoutHelper
 
     protect_from_forgery with: :exception
 

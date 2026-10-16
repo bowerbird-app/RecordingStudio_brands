@@ -9,7 +9,7 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     name: "Taylor Swift",
     tagline: "The Eras Tour",
     description: "Singer and songwriter.",
-    website_url: "https://www.taylorswift.com",
+    website_url: "https://www.taylorswift.com/",
     email: "hello@taylorswift.com",
     phone: "+1 615 555 0100"
   }.freeze
@@ -76,14 +76,14 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     assert_select "input[type=file]", count: 0
     assert_select ".max-w-2xl" do
       assert_select "h2", text: "Taylor Swift"
-      assert_select "a[href=?]", "https://www.taylorswift.com"
+      assert_select "a[href=?]", "https://www.taylorswift.com/"
     end
     assert_includes page_text, "The Eras Tour"
     assert_includes page_text, "Singer and songwriter."
     assert_includes page_text, "Website"
     assert_includes page_text, "Email"
     assert_includes page_text, "Phone"
-    assert_select "a[href=?]", "https://www.taylorswift.com", text: "https://www.taylorswift.com"
+    assert_select "a[href=?]", "https://www.taylorswift.com/", text: "https://www.taylorswift.com/"
     assert_select "a[href=?]", "mailto:hello@taylorswift.com", text: "hello@taylorswift.com"
     assert_select "a[href=?]", "tel:+1 615 555 0100", text: "+1 615 555 0100"
     assert_select "a", text: "Add brand", count: 0
@@ -317,7 +317,10 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
 
     assert_select "a[href=?]", "https://acme.example/coffee", text: "https://acme.example/coffee"
 
-    websites = { bare => "nike.com", unsafe => "javascript:alert('site')", malformed => "https://rexona .example" }
+    get brands.brand_path(bare)
+    assert_select "a[href=?]", "https://nike.com/", text: "https://nike.com/"
+
+    websites = { unsafe => "javascript:alert('site')", malformed => "https://rexona .example" }
     websites.each do |brand_recording, website|
       get brands.brand_path(brand_recording)
 
@@ -421,6 +424,7 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
 
   def record_brand(parent, name)
     parent.record(RecordingStudioBrands::Brand, parent_recording: parent, actor: @owner) do |brand|
+      brand.parent_recording_id_for_slug = parent.id
       brand.name = name
       yield brand if block_given?
     end

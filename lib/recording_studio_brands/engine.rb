@@ -120,5 +120,14 @@ module RecordingStudioBrands
         end
       end
     end
+
+    initializer "recording_studio_brands.admin_definitions" do
+      config.to_prepare { RecordingStudioBrands::Admin.register! }
+    end
+
+    initializer "recording_studio_brands.slug_parent_from_record",
+                after: "recording_studio_brands.after_initialize" do
+      RecordingStudioBrands::SlugParentHook.install!
+    end
   end
 end

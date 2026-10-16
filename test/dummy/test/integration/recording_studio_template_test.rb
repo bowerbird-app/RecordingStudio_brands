@@ -12,7 +12,7 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
 
   test "dummy app validates recordable declarations" do
     assert RecordingStudio.validate_recordable_declarations!
-    assert_equal [ "Workspace" ], RecordingStudio.root_recordable_types
+    assert_equal %w[AdminRoot Workspace], RecordingStudio.root_recordable_types.sort
     assert_equal [ "Workspace", "Folder" ], RecordingStudio.allowed_parent_types_for("Page")
   end
 
@@ -33,11 +33,13 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     workspace = Workspace.find_by!(name: "Studio Workspace")
     accessible_workspace = Workspace.find_by!(name: "Client Workspace")
     private_workspace = Workspace.find_by!(name: "Private Workspace")
+    admin_root = AdminRoot.find_by!(name: "Admin")
     folder = Folder.find_by!(name: "Product Docs")
     page = Page.find_by!(title: "Getting Started")
     root_recording = RecordingStudio::Recording.find_by!(recordable: workspace)
     accessible_root_recording = RecordingStudio::Recording.find_by!(recordable: accessible_workspace)
     private_root_recording = RecordingStudio::Recording.find_by!(recordable: private_workspace)
+    admin_root_recording = RecordingStudio::Recording.find_by!(recordable: admin_root)
     folder_recording = RecordingStudio::Recording.find_by!(recordable: folder)
     page_recording = RecordingStudio::Recording.find_by!(recordable: page)
 
@@ -45,13 +47,16 @@ class RecordingStudioTemplateTest < ActiveSupport::TestCase
     assert_nil root_recording.parent_recording_id
     assert_nil accessible_root_recording.parent_recording_id
     assert_nil private_root_recording.parent_recording_id
+    assert_nil admin_root_recording.parent_recording_id
     assert_equal root_recording, folder_recording.parent_recording
     assert_equal root_recording, folder_recording.root_recording
     assert_equal folder_recording, page_recording.parent_recording
     assert_equal root_recording, page_recording.root_recording
     assert_equal 3, Workspace.count
+    assert_equal 1, AdminRoot.count
     assert_equal [ "Taylor Swift", "Dove", "Acme Coffee" ], brand_names_under(root_recording)
     assert_equal [], brand_names_under(accessible_root_recording)
+    assert_equal [], brand_names_under(admin_root_recording)
     assert_equal [ "Nike", "Dove", "Acme Coffee" ], brand_names_under(folder_recording)
 
     assert_no_difference -> { User.count } do

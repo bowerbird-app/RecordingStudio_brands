@@ -92,7 +92,10 @@ class BrandsFlashesI18nTest < ActionDispatch::IntegrationTest
   private
 
   def record_brand(parent, name)
-    parent.record(RecordingStudioBrands::Brand, parent_recording: parent, actor: @owner) { |brand| brand.name = name }
+    parent.record(RecordingStudioBrands::Brand, parent_recording: parent, actor: @owner) do |brand|
+      brand.parent_recording_id_for_slug = parent.id
+      brand.name = name
+    end
   end
 
   def brand_recordings_under(parent)

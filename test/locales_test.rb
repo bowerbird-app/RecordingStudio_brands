@@ -23,14 +23,37 @@ class RecordingStudioBrandsLocalesTest < Minitest::Test
     },
     "labels" => {
       "name" => "Name",
+      "slug" => "Slug",
       "tagline" => "Tagline",
       "description" => "Description",
       "website" => "Website",
       "email" => "Email",
-      "phone" => "Phone"
+      "phone" => "Phone",
+      "active" => "Active",
+      "active_yes" => "Yes",
+      "active_no" => "No"
+    },
+    "help" => {
+      "slug" => "Used in seeds and catalogue lookups. Leave blank to build it from the name.",
+      "active" => "Off hides the brand from live catalogue lists."
     },
     "placeholders" => {
       "website" => "https://"
+    },
+    "admin" => {
+      "new_subtitle" => "Saved under the root you have open.",
+      "section_title" => "Brands",
+      "section_subtitle" => "Public names under this root.",
+      "catalogue_link" => "Brands",
+      "new_link" => "New",
+      "screen_title" => "Brands",
+      "screen_subtitle" => "Names, slugs, and whether each brand is live.",
+      "table_title" => "Brands",
+      "updated_column" => "Updated",
+      "resource_title" => "Brands",
+      "show_action" => "Show",
+      "edit_action" => "Edit",
+      "new_action" => "New"
     },
     "empty" => {
       "no_brands_title" => "No brands yet",
@@ -54,7 +77,9 @@ class RecordingStudioBrandsLocalesTest < Minitest::Test
       "brand_saved" => "Brand saved.",
       "logo_saved" => "Logo saved.",
       "logo_not_saved" => "The logo could not be saved. Choose an image file.",
-      "brand_limit" => "This %{type} already has a brand."
+      "brand_limit" => "This %{type} already has a brand.",
+      "brand_invalid" => "Check the brand and try again.",
+      "admin_root_missing" => "Pick a root that holds brands, then try again."
     }
   }.freeze
 
@@ -75,14 +100,8 @@ class RecordingStudioBrandsLocalesTest < Minitest::Test
           assert_equal english, I18n.t(full_key, raise: true)
         end
 
-        assert_equal "Give Studio its public face.",
-                     I18n.t("recording_studio.brands.empty.no_brand_description", name: "Studio")
-        assert_equal "This workspace has more than one brand",
-                     I18n.t("recording_studio.brands.conflict.title", type: "workspace")
-        assert_equal "This workspace already has a brand.",
-                     I18n.t("recording_studio.brands.flashes.brand_limit", type: "workspace")
-        assert_equal "Website",
-                     I18n.t("activerecord.attributes.recording_studio_brands/brand.website_url", raise: true)
+        assert_interpolated_brand_keys
+        assert_activerecord_brand_keys
       end
     end
   end
@@ -136,5 +155,29 @@ class RecordingStudioBrandsLocalesTest < Minitest::Test
   ensure
     I18n.load_path.replace(original_load_path)
     I18n.reload!
+  end
+
+  def assert_interpolated_brand_keys
+    assert_equal "Give Studio its public face.",
+                 I18n.t("recording_studio.brands.empty.no_brand_description", name: "Studio")
+    assert_equal "This workspace has more than one brand",
+                 I18n.t("recording_studio.brands.conflict.title", type: "workspace")
+    assert_equal "This workspace already has a brand.",
+                 I18n.t("recording_studio.brands.flashes.brand_limit", type: "workspace")
+  end
+
+  def assert_activerecord_brand_keys
+    assert_equal "Website",
+                 I18n.t("activerecord.attributes.recording_studio_brands/brand.website_url", raise: true)
+    assert_equal "must be a JSON object",
+                 I18n.t(
+                   "activerecord.errors.models.recording_studio_brands/brand.attributes.metadata.not_a_hash",
+                   raise: true
+                 )
+    assert_equal "needs a parent recording",
+                 I18n.t(
+                   "activerecord.errors.models.recording_studio_brands/brand.attributes.slug.missing_parent",
+                   raise: true
+                 )
   end
 end

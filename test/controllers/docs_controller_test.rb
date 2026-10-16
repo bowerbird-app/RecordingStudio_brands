@@ -52,6 +52,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
       "The list below comes from RecordingStudio.recordable_declarations and parent/root introspection."
     )
     assert_includes response.body, "Workspace"
+    assert_includes response.body, "AdminRoot"
     assert_includes response.body, "Folder"
     assert_includes response.body, "Page"
     assert_includes response_text, "Root recordable"
@@ -66,6 +67,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Workspace"
+    assert_includes response.body, "AdminRoot"
     assert_includes response.body, "Folder"
     assert_includes response.body, "Page"
   end
@@ -78,6 +80,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     page = Page.create!(title: "API")
     record_child(page, root_recording, folder_recording)
     root_recording.record(RecordingStudioBrands::Brand, parent_recording: root_recording, actor: @user) do |brand|
+      brand.parent_recording_id_for_slug = root_recording.id
       brand.name = "Tree Brand"
     end
 

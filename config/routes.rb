@@ -6,4 +6,8 @@ RecordingStudioBrands::Engine.routes.draw do
       resource :logo, only: :update
     end
   end
+
+  namespace :admin do
+    resources :brands, only: %i[new create show edit update]
+  end
 end

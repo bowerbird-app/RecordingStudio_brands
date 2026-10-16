@@ -1,0 +1,40 @@
+<div class="mx-auto flex w-full flex-col gap-6">
+  <%= render FlatPack::PageTitle::Component.new(
+    title: @brand.name,
+    subtitle: @brand.tagline.presence || @brand.slug,
+    variant: :h1
+  ) do |page_title| %>
+    <% page_title.slot do %>
+      <%= render FlatPack::Button::Component.new(
+        text: t("recording_studio.brands.actions.edit_brand"),
+        style: :secondary,
+        href: edit_admin_brand_path(@brand_recording)
+      ) %>
+    <% end %>
+  <% end %>
+
+  <%= render FlatPack::List::Component.new(divider: true, spacing: :compact) do %>
+    <%= render FlatPack::List::Item.new(leading: t("recording_studio.brands.labels.slug")) do %>
+      <%= @brand.slug %>
+    <% end %>
+    <%= render FlatPack::List::Item.new(leading: t("recording_studio.brands.labels.active")) do %>
+      <%= render FlatPack::Badge::Component.new(
+        text: (@brand.active? ? t("recording_studio.brands.labels.active_yes") : t("recording_studio.brands.labels.active_no")),
+        style: (@brand.active? ? :success : :default),
+        size: :sm
+      ) %>
+    <% end %>
+    <% if @brand.website_url.present? %>
+      <%= render FlatPack::List::Item.new(leading: t("recording_studio.brands.labels.website")) do %>
+        <%= render FlatPack::Link::Component.new(href: @brand.website_url) do %>
+          <%= @brand.website_url %>
+        <% end %>
+      <% end %>
+    <% end %>
+    <% if @brand.description.present? %>
+      <%= render FlatPack::List::Item.new(leading: t("recording_studio.brands.labels.description")) do %>
+        <%= @brand.description %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

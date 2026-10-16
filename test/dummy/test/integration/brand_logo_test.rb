@@ -65,7 +65,11 @@ class BrandLogoTest < ActionDispatch::IntegrationTest
     patch logo_path(@nike), params: { logo: image_upload("nike.png", "nike-bytes") }
     logo = Logo.recording_for(@nike)
 
-    revised = @folder.revise(@nike, actor: @owner) { |brand| brand.tagline = "Just Do It" }
+    revised = @folder.revise(@nike, actor: @owner) do |brand|
+      brand.parent_recording_id_for_slug = @folder.id
+      brand.slug_uniqueness_except_recording_id = @nike.id
+      brand.tagline = "Just Do It"
+    end
 
     assert_equal @nike.id, revised.id
     assert_equal "Just Do It", RecordingStudio::Recording.find(@nike.id).recordable.tagline
@@ -163,7 +167,10 @@ class BrandLogoTest < ActionDispatch::IntegrationTest
   end
 
   def record_brand(parent, name)
-    parent.record(RecordingStudioBrands::Brand, parent_recording: parent, actor: @owner) { |brand| brand.name = name }
+    parent.record(RecordingStudioBrands::Brand, parent_recording: parent, actor: @owner) do |brand|
+      brand.parent_recording_id_for_slug = parent.id
+      brand.name = name
+    end
   end
 
   def logo_path(brand_recording)

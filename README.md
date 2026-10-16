@@ -11,14 +11,17 @@ Brand does not require a root, a Workspace, a Company, or a Person. This gem doe
 | Field | Rule |
 | --- | --- |
 | Name | Required. 255 characters. |
+| Slug | Required. 255 characters. Unique among current brands under the same parent. Filled from the parameterized name when blank. |
 | Tagline | Optional. 255 characters. |
 | Description | Optional. 5,000 characters. |
-| Website | Optional. 255 characters. Stored as entered. |
+| Website | Optional. 255 characters. Normalized on assign (`RecordingStudioBrands::Url.normalize`). |
 | Email | Optional. 255 characters. Stored as entered. |
 | Phone | Optional. 255 characters. Stored as entered. |
+| Active | Boolean, default true. Catalogue “live” flag. |
+| Metadata | JSON object, default `{}`. Opaque bag for hosts. |
 | Logo | One image on the brand recording. A new image replaces it. |
 
-Optional fields are length-capped only. There is no format check for website, email, or phone.
+Optional text fields are length-capped only. There is no format check for email or phone.
 
 The logo uses Recording Studio Attachable. Revise copies the brand row and drops file attachments on that row, so the logo hangs off the brand recording and stays put.
 
@@ -76,6 +79,28 @@ end
 
 Other gems can read `brand_recording.recordable` and follow the recording parent. They should not assume the parent is a Company, a Person, or a Workspace.
 
+Find a current brand (the recordable a Brand recording points at now) with `RecordingStudioBrands::Identity`:
+
+```ruby
+RecordingStudioBrands::Identity.find_brand(slug: "acme-coffee", parent_recording: catalogue_recording)
+RecordingStudioBrands::Identity.find_brand_recording(name: "Acme Coffee", parent_recording: catalogue_recording)
+RecordingStudioBrands::Identity.find_brand(website_url: "acme.example", parent_recording: catalogue_recording)
+```
+
+When writing brands outside this gem's controllers, set
+`brand.parent_recording_id_for_slug = parent.id` before validation so slug
+uniqueness can scope to that parent. On revise, also set
+`brand.slug_uniqueness_except_recording_id = brand_recording.id` so the
+still-current snapshot does not collide with itself. Missing parent context
+adds a slug validation error instead of skipping the uniqueness check.
+
+Install catalogue columns with
+`bin/rails generate recording_studio_brands:migrations` then
+`bin/rails db:migrate`. Empty slugs are backfilled with `String#parameterize`
+(so `Café` becomes `cafe`); duplicate base slugs under one parent get `-2`,
+`-3`, … suffixes. Legacy `website_url` values are normalized with
+`RecordingStudioBrands::Url.normalize` so catalogue website finders match.
+
 ## Screens
 
 The engine mounts at `/recording_studio_brands`.
@@ -88,6 +113,28 @@ The engine mounts at `/recording_studio_brands`.
 Screens call Accessible with the signed-in actor. A viewer can open a brand. Add, edit, and logo upload need edit access. Brand does not enable its own access capability. Access is inherited from the recording the host already authorized.
 
 The engine defaults to `authenticate_user!` and `current_user`. Override both in `config/initializers/recording_studio_brands.rb` when the host uses different method names.
+
+## Admin
+
+This gem registers a Recording Studio Admin section (`brands`), screen
+(`recording_studio_brands`), and resource for staff CRUD under the current root.
+Forms live on the engine at `/recording_studio_brands/admin/brands`.
+
+Hosts that need Media brands admin after publications drops its Brand screens:
+
+1. Depend on `recording_studio_admin` and mount it (`recording_studio_admin_for`).
+2. Enable `section :brands` on the admin root recordable (`AllowsAdminSections`).
+3. Include `RecordingStudio::Capabilities::Brand.to(allows: :many)` on the root
+   that should hold those brands (often the Catalogue root, or an AdminRoot in
+   the dummy).
+4. Grant Accessible access on the admin access recording.
+
+The dummy mounts Admin at `/admin` with `AdminRoot` as a many-brand parent.
+
+The Brands admin screen shows a primary **Add brand** button and renders the
+Active column as FlatPack badges (success when live, default when off). Show
+uses a full-width FlatPack list with labels leading values. Screen, section,
+resource, and table column titles resolve through request-time i18n.
 
 ### Interface text
 
