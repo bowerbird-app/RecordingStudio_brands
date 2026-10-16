@@ -2,10 +2,20 @@
 
 class AddCatalogueFieldsToRecordingStudioBrands < ActiveRecord::Migration[8.1]
   def change
+    add_catalogue_columns
+    backfill_slugs
+    add_catalogue_indexes
+  end
+
+  private
+
+  def add_catalogue_columns
     add_column :recording_studio_brands, :slug, :string
     add_column :recording_studio_brands, :active, :boolean, null: false, default: true
     add_column :recording_studio_brands, :metadata, :jsonb, null: false, default: {}
+  end
 
+  def backfill_slugs
     reversible do |dir|
       dir.up do
         execute <<~SQL.squish
@@ -22,7 +32,9 @@ class AddCatalogueFieldsToRecordingStudioBrands < ActiveRecord::Migration[8.1]
         change_column_null :recording_studio_brands, :slug, false
       end
     end
+  end
 
+  def add_catalogue_indexes
     add_index :recording_studio_brands, :slug
     add_index :recording_studio_brands, :website_url
     add_index :recording_studio_brands, :active
