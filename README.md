@@ -230,10 +230,10 @@ That runs the engine tests and the dummy app. The dummy covers one and many moun
 | --- | --- |
 | Ruby | 3.3+ |
 | Rails | `~> 8.1.0` |
-| Recording Studio | `~> 4.2` in the gemspec. dummy GitHub tag `v4.6.0`. |
+| Recording Studio | `~> 4.2` in the gemspec. dummy GitHub tag `v4.7.0`. |
 | Accessible | `~> 0.13`. dummy GitHub tag `v0.18.0`. |
 | Attachable | `~> 0.15`. dummy GitHub tag `v0.15.0`. |
-| Trashable | Query-only for Accessible 0.17+. dummy GitHub tag `v0.10.0` (`require: false`). |
+| Trashable | Query-only for Accessible 0.17+. dummy GitHub tag `v0.11.0` (`require: false`). |
 | Root Switchable | Dummy only. dummy GitHub tag `v0.9.0`. |
 | Cache | Dummy only (Root Switchable 0.9+). dummy GitHub tag `v0.5.0`. |
 | Metrics | Attachable 0.14+, Root Switchable 0.7+, Trashable. dummy GitHub tag `v0.2.0`. |
