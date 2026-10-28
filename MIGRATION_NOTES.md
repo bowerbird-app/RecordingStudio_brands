@@ -11,7 +11,7 @@
 - Cache dummy tag `v0.5.0` (required by Root Switchable 0.9+)
 - Metrics dummy tag `v0.2.3` (required by Admin 2.3+, Attachable 0.14+, Root Switchable 0.7+, Trashable)
 - Attachable dummy tag `v0.15.0` (unchanged; do not bump Attachable from this gem)
-- FlatPack dummy tag `v0.1.213`
+- FlatPack dummy tag `v0.1.311`
 - Public RubyGems and GitHub access for dependency installation
 
 ## Installing catalogue fields (0.4.0+)

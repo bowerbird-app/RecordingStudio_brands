@@ -237,6 +237,6 @@ That runs the engine tests and the dummy app. The dummy covers one and many moun
 | Root Switchable | Dummy only. dummy GitHub tag `v0.9.0`. |
 | Cache | Dummy only (Root Switchable 0.9+). dummy GitHub tag `v0.5.0`. |
 | Metrics | Attachable 0.14+, Root Switchable 0.7+, Trashable. dummy GitHub tag `v0.2.3`. |
-| Flatpack | `>= 0.1.196`. dummy GitHub tag `v0.1.213` (Attachable 0.12+ needs `>= 0.1.213`). |
+| Flatpack | `>= 0.1.196`. dummy GitHub tag `v0.1.311` (Attachable 0.12+ needs `>= 0.1.213`; 0.1.311 allows `view_component` `>= 4.14`). |
 
 `docs/gem_template/` is the frozen addon template this repo started from. This README is the source of truth for Brand.
