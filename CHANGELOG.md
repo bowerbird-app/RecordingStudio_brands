@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stop tracking SimpleCov output under `coverage/` and `test/dummy/coverage/`; both directories are gitignored
 - README Metrics dummy pin text matches the Gemfile tag `v0.2.3`
 - Lockfile-only Bundler Audit bumps: `crass` `>= 1.0.8` and `net-ssh` `>= 7.3.5` (`bundle update --conservative`; `view_component` unchanged)
+- CI: lint and security jobs use Ruby 3.3 (runner no longer has 3.3.6)
 
 ### Upgrade notes
 
