@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-10-28
+
+### Changed
+
+- Version `0.4.1` → `0.4.2`
+- Stop tracking SimpleCov output under `coverage/` and `test/dummy/coverage/`; both directories are gitignored
+- README Metrics dummy pin text matches the Gemfile tag `v0.2.3`
+- Lockfile-only Bundler Audit bumps: `crass` `>= 1.0.8` and `net-ssh` `>= 7.3.5` (`bundle update --conservative`; `view_component` unchanged)
+
+### Upgrade notes
+
+1. Bump to `recording_studio_brands` `0.4.2`. No schema or API change.
+2. Regenerated coverage reports stay local; they are no longer in git.
+
+## [0.4.1] - 2026-10-16
+
+Tag `v0.4.1` points at `main` (`28f3f60`). `VERSION` on that commit stayed `0.4.0`; this section documents the tag.
+
+### Changed
+
+- Dummy and gem pins: `recording_studio_trashable` `v0.11.0` and Recording Studio `v4.7.0` (Trashable 0.11 requires `recording_studio ~> 4.7`)
+
+### Upgrade notes
+
+1. Hosts that pin from GitHub tags should use `v0.4.1` for this tree. Gem constant `RecordingStudioBrands::VERSION` on that tag is still `0.4.0`.
+2. Dummy Trashable `v0.11.0` needs Recording Studio `v4.7.0`.
+
 ## [0.4.0] - 2026-10-16
 
 ### Added
@@ -149,7 +176,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Company, Person, Location, Press Centre, and Press Kit are not part of this gem. Trash, duplicate, and manual ordering stay off.
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/bowerbird-app/RecordingStudio_brands/releases/tag/v0.2.0
