@@ -213,7 +213,7 @@ class RecordingStudioBrandsTest < Minitest::Test
     refute_includes readme, "dummy GitHub tag `v0.10.0`"
     assert_includes readme, "dummy GitHub tag `v0.9.0`"
     assert_includes readme, "dummy GitHub tag `v0.5.0`"
-    assert_includes readme, "dummy GitHub tag `v0.2.0`"
+    assert_includes readme, "dummy GitHub tag `v0.2.3`"
     refute_includes readme, "dummy GitHub tag `v4.5.0`"
     refute_includes readme, "dummy GitHub tag `v0.8.0`"
     refute_includes readme, "dummy GitHub tag `v4.3.0`"
