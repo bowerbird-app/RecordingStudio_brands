@@ -14,9 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version `0.4.1` → `0.4.2`
 - Stop tracking SimpleCov output under `coverage/` and `test/dummy/coverage/`; both directories are gitignored
 - README Metrics dummy pin text matches the Gemfile tag `v0.2.3`
-- Lockfile-only Bundler Audit bumps: `crass` `>= 1.0.8` and `net-ssh` `>= 7.3.5` (`bundle update --conservative`; `view_component` unchanged)
+- Lockfile-only `crass` and `net-ssh` bumps
 - CI: lint and security jobs use Ruby 3.3 (runner no longer has 3.3.6)
 - FlatPack bumped to `v0.1.311` to fix Bundler Audit (`view_component` `>= 4.14`)
+- Brands `one` view uses FlatPack `EmptyState#item`, which needs FlatPack `>= 0.1.246`; gemspec floor raised from `0.1.196`
 
 ### Upgrade notes
 
