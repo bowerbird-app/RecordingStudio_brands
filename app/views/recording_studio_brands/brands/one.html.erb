@@ -12,7 +12,7 @@
     description: (t("recording_studio.brands.empty.no_brand_description", name: @parent.name) if editable)
   ) do |empty| %>
     <% if editable %>
-      <% empty.slot do %>
+      <% empty.item do %>
         <%= render FlatPack::Button::Component.new(text: t("recording_studio.brands.actions.add_brand"), style: :primary, href: new_recording_brand_path(@parent)) %>
       <% end %>
     <% end %>
