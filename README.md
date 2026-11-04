@@ -112,7 +112,7 @@ Screens call Accessible with the signed-in actor. A viewer can open a brand. Add
 
 The engine defaults to `authenticate_user!` and `current_user`. Override both in `config/initializers/recording_studio_brands.rb` when the host uses different method names.
 
-Brand screens call `recording_studio_layout { RecordingStudioBrands.configuration.layout }`. Leave `config.layout` unset (`nil`) so Recording Studio core’s Default Layout applies. Set a layout name, `false`, or a `call(controller:)` callable to override this surface only.
+Brand screens include `RecordingStudio::ControllerLayout` and call `recording_studio_layout { RecordingStudioBrands.configuration.layout }`. Leave `config.layout` unset (`nil`) so Recording Studio core’s Default Layout applies. Set a layout name, `false`, or a `call(controller:)` callable to override this surface only.
 
 ## Admin
 

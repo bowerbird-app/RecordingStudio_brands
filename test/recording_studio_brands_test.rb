@@ -159,6 +159,7 @@ class RecordingStudioBrandsTest < Minitest::Test
     )
     gem_root = File.expand_path("..", __dir__)
 
+    assert_includes controller_source, "include RecordingStudio::ControllerLayout"
     assert_includes controller_source, "recording_studio_layout { RecordingStudioBrands.configuration.layout }"
     refute_includes controller_source, "UsesDefaultLayout"
     refute_includes controller_source, 'layout "recording_studio/default_layout"'

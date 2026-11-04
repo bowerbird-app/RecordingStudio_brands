@@ -283,6 +283,38 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_user_session_path
   end
 
+  test "engine brand screens render through the dummy app on the default layout" do
+    taylor = record_brand(@workspace, "Taylor Swift")
+    crowded = owned_workspace("Conflict Workspace")
+    record_brand(crowded, "Nike")
+    record_brand(crowded, "Dove")
+    sign_in @owner
+
+    get brands.recording_brands_path(@workspace)
+    assert_response :success
+    assert_select "body[data-recording-studio-default-layout='true']"
+
+    get brands.brand_path(taylor)
+    assert_response :success
+    assert_select "body[data-recording-studio-default-layout='true']"
+
+    get brands.new_recording_brand_path(@workspace)
+    assert_response :success
+    assert_select "body[data-recording-studio-default-layout='true']"
+
+    get brands.edit_brand_path(taylor)
+    assert_response :success
+    assert_select "body[data-recording-studio-default-layout='true']"
+
+    with_brand_options(Workspace, allows: :one) do
+      get brands.recording_brands_path(crowded)
+
+      assert_response :success
+      assert_select "body[data-recording-studio-default-layout='true']"
+      assert_includes page_text, "This workspace has more than one brand"
+    end
+  end
+
   test "brand fields render as text" do
     script = "<script>alert('name')</script>"
     brand_recording = record_brand(@folder, script) do |brand|

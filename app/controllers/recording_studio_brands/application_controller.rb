@@ -2,6 +2,8 @@
 
 module RecordingStudioBrands
   class ApplicationController < (defined?(::ApplicationController) ? ::ApplicationController : ActionController::Base)
+    include RecordingStudio::ControllerLayout
+
     recording_studio_layout { RecordingStudioBrands.configuration.layout }
 
     protect_from_forgery with: :exception

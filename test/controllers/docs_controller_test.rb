@@ -37,6 +37,8 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "config.authentication_method = :authenticate_user!"
     assert_includes response.body, "RecordingStudio::Capabilities::Brand.to(allows: :one)"
     assert_includes response.body, "RecordingStudio::Capabilities::Brand.to(allows: :many)"
+    assert_select "div.min-w-0.max-w-full.overflow-x-auto"
+    assert_includes response.body, "whitespace-pre-wrap"
   end
 
   test "recordable types page renders configured recordables dynamically" do
