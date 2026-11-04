@@ -1,6 +1,4 @@
-<% recording_studio_page_nav(
-  title: t("recording_studio.brands.titles.brand"),
-  page_nav_anchor_url: recording_brands_path(@parent)
-) %>
+<% content_for :title, t("recording_studio.brands.titles.brand") %>
+<% flat_pack_page_nav(round: true, style: :default, anchor_href: recording_brands_path(@parent)) %>
 
 <%= render "recording_studio_brands/brands/brand", brand_recording: @brand_recording, logo: @logo %>

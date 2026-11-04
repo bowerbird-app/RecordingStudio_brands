@@ -1,4 +1,4 @@
-<% recording_studio_page_nav(title: t("recording_studio.brands.titles.brand")) %>
+<% content_for :title, t("recording_studio.brands.titles.brand") %>
 
 <% if @brand_recording %>
   <%= render "recording_studio_brands/brands/brand", brand_recording: @brand_recording, logo: @logo %>

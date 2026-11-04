@@ -50,4 +50,33 @@ class ConfigurationTest < Minitest::Test
 
     assert_kind_of RecordingStudioBrands::Configuration, RecordingStudioBrands.configuration
   end
+
+  def test_layout_defaults_to_nil
+    assert_nil @configuration.layout
+    assert_nil @configuration.to_h.fetch(:layout)
+  end
+
+  def test_layout_accepts_false_name_and_keyword_callable
+    @configuration.layout = false
+    assert_equal false, @configuration.layout
+
+    @configuration.layout = "application"
+    assert_equal "application", @configuration.layout
+
+    callable = ->(controller:) { controller.nil? ? "application" : "admin" }
+    @configuration.layout = callable
+    assert_same callable, @configuration.layout
+  end
+
+  def test_layout_rejects_symbol_blank_name_and_positional_callable
+    assert_raises(ArgumentError) { @configuration.layout = :blank }
+    assert_raises(ArgumentError) { @configuration.layout = "   " }
+    assert_raises(ArgumentError) { @configuration.layout = ->(controller) { controller && "application" } }
+  end
+
+  def test_merge_assigns_layout_through_accept
+    @configuration.merge!(layout: "application")
+
+    assert_equal "application", @configuration.layout
+  end
 end

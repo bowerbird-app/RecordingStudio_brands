@@ -1,4 +1,5 @@
-<% recording_studio_page_nav(title: t("recording_studio.brands.titles.add_brand"), page_nav_anchor_url: recording_brands_path(@parent)) %>
+<% content_for :title, t("recording_studio.brands.titles.add_brand") %>
+<% flat_pack_page_nav(round: true, style: :default, anchor_href: recording_brands_path(@parent)) %>
 
 <%= render FlatPack::PageTitle::Component.new(
   title: t("recording_studio.brands.titles.add_brand"),
