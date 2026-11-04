@@ -17,7 +17,7 @@ class RecordingStudioBrandsTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 6.3.0", "< 7"'
     assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.341"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", "~> 2.0"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", "~> 0.15"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", "~> 0.22"'
   end
 
   def test_gemspec_excludes_cursor_config

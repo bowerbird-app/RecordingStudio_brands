@@ -446,7 +446,7 @@ class BrandScreensTest < ActionDispatch::IntegrationTest
   def page_text
     document = Nokogiri::HTML(response.body)
     document.css("script, style, template").each(&:remove)
-    CGI.unescapeHTML(document.at("body").text.squish)
+    document.at("body").text.squish
   end
 
   def with_brand_options(model, **options)

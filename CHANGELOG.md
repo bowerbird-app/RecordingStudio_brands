@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Version `0.4.2` → `0.5.0`
-- Requires Recording Studio `>= 6.3.0`, `< 7` (dummy GitHub tag `v6.3.0`) and FlatPack `>= 0.1.341` (dummy GitHub tag `v0.1.341`)
+- Requires Recording Studio `>= 6.3.0`, `< 7` (dummy GitHub tag `v6.3.0`), FlatPack `>= 0.1.341` (dummy GitHub tag `v0.1.341`), and Attachable `~> 0.22` (dummy GitHub tag `v0.22.0`)
 - Brand screens use `recording_studio_layout { configuration.layout }`. Unset `config.layout` (`nil`) falls through to Recording Studio core, then the Default Layout
 - Gem views set `content_for :title` (and `:subtitle`) for the Default Layout heading. They do not also render `FlatPack::PageTitle`
 - Gem views call `flat_pack_page_nav` for close instead of `recording_studio_page_nav`, and `register_page_nav` for Add/Edit
@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Upgrade notes
 
-1. Bump to `recording_studio_brands` `0.5.0`. Pin Recording Studio `v6.3.0` (or another 6.x tag at least `6.3.0`) and FlatPack `v0.1.341` or newer. No Brands schema change.
+1. Bump to `recording_studio_brands` `0.5.0`. Pin Recording Studio `v6.3.0` (or another 6.x tag at least `6.3.0`), FlatPack `v0.1.341` or newer, and Attachable `~> 0.22`. No Brands schema change.
 2. Remove `include RecordingStudio::UsesDefaultLayout` and `layout "recording_studio/default_layout"` from copies of this engine’s base controller. Call `recording_studio_layout { RecordingStudioBrands.configuration.layout }`.
 3. Leave `RecordingStudioBrands.configuration.layout` unset to use core’s Default Layout. A String names a layout. `false` skips a layout. A callable must be `call(controller:)` and return a String, `nil`, or `false`.
 4. Host copies of Brand views should set `content_for :title` (and `flat_pack_page_nav` for close) instead of `recording_studio_page_nav`. Do not also render an in-body `FlatPack::PageTitle` — the Default Layout already draws the heading.
