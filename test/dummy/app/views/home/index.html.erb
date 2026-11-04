@@ -1,11 +1,6 @@
-<% dummy_page_nav(title: "Brands demo", back_url: root_path) %>
+<% dummy_page_nav(title: "Brands demo", subtitle: "Workspaces and folders each hold as many brands as you like.", back_url: root_path) %>
 
 <div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(
-    title: "Brands demo",
-    subtitle: "Workspaces and folders each hold as many brands as you like.",
-    variant: :h1
-  ) %>
 
   <% if @brand_parents.any? %>
     <%= render FlatPack::List::Component.new(divider: true) do %>

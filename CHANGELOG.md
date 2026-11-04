@@ -12,21 +12,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Version `0.4.2` → `0.5.0`
-- Requires Recording Studio `>= 6.3.0`, `< 7` (dummy GitHub tag `v6.3.0`) and FlatPack `>= 0.1.315` (dummy GitHub tag `v0.1.315`)
+- Requires Recording Studio `>= 6.3.0`, `< 7` (dummy GitHub tag `v6.3.0`) and FlatPack `>= 0.1.341` (dummy GitHub tag `v0.1.341`)
 - Brand screens use `recording_studio_layout { configuration.layout }`. Unset `config.layout` (`nil`) falls through to Recording Studio core, then the Default Layout
-- Gem views set `content_for :title` and call `flat_pack_page_nav` for close instead of `recording_studio_page_nav`
+- Gem views set `content_for :title` (and `:subtitle`) for the Default Layout heading. They do not also render `FlatPack::PageTitle`
+- Gem views call `flat_pack_page_nav` for close instead of `recording_studio_page_nav`, and `register_page_nav` for Add/Edit
 - Dummy host no longer includes removed `RecordingStudio::UsesDefaultLayout`
-- Dummy keeps Admin `v2.3.2` working by restoring `recording_studio_page_nav` on `LayoutHelper` for that host only
-- Sibling gems that still declare Recording Studio 4.x are widened at Bundler load (`test/support/widen_recording_studio_requirement.rb`)
+- Dummy pins core-6 sibling tags: Admin `v2.9.0`, Accessible `v0.24.1`, Attachable `v0.22.0`, Trashable `v0.12.2`, Cache `v0.6.2`, Metrics `v0.7.2`, Root Switchable `v0.11.4`, Logs `v0.7.3`
+- Logo uploads sign Active Storage blobs with Attachable `DirectUpload` (`purpose: :attachable_upload`) and bind them to the brand recording and actor
 - Root and dummy lockfiles require `rack` `>= 3.2.8`
 
 ### Upgrade notes
 
-1. Bump to `recording_studio_brands` `0.5.0`. Pin Recording Studio `v6.3.0` (or another 6.x tag at least `6.3.0`) and FlatPack `v0.1.315` or newer. No Brands schema change.
+1. Bump to `recording_studio_brands` `0.5.0`. Pin Recording Studio `v6.3.0` (or another 6.x tag at least `6.3.0`) and FlatPack `v0.1.341` or newer. No Brands schema change.
 2. Remove `include RecordingStudio::UsesDefaultLayout` and `layout "recording_studio/default_layout"` from copies of this engine’s base controller. Call `recording_studio_layout { RecordingStudioBrands.configuration.layout }`.
 3. Leave `RecordingStudioBrands.configuration.layout` unset to use core’s Default Layout. A String names a layout. `false` skips a layout. A callable must be `call(controller:)` and return a String, `nil`, or `false`.
-4. Host copies of Brand views should set `content_for :title` (and `flat_pack_page_nav` for close) instead of `recording_studio_page_nav`.
-5. Sibling gems that still declare `recording_studio` below 6 need a Bundler widen until those gemspecs allow 6.x. This repo’s dummy keeps Accessible `v0.18.0`, Admin `v2.3.2`, Attachable `v0.15.0`, and the other 4.x companion pins.
+4. Host copies of Brand views should set `content_for :title` (and `flat_pack_page_nav` for close) instead of `recording_studio_page_nav`. Do not also render an in-body `FlatPack::PageTitle` — the Default Layout already draws the heading.
+5. Pin companion gems to core-6 tags (`recording_studio_admin` `v2.9.0`, `recording_studio_accessible` `v0.24.1`, `recording_studio_attachable` `v0.22.0`, and the Cache / Metrics / Trashable / Root Switchable / Logs tags this dummy uses). A plain `bundle install` must resolve without rewriting gemspecs.
 
 ## [0.4.2] - 2026-10-28
 

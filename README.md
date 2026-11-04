@@ -35,9 +35,7 @@ Register the type, then opt in on each parent class. There is no default.
 RecordingStudio.configure do |config|
   config.recordable_types += [
     "RecordingStudioBrands::Brand",
-    "RecordingStudioAttachable::Attachment",
-    "RecordingStudioAttachable::Library",
-    "RecordingStudioAttachable::Placement"
+    "RecordingStudioAttachable::Attachment"
   ]
 end
 
@@ -173,7 +171,7 @@ Then register the two type strings, opt each parent in with `allows: :one` or `a
 
 1. Add `recording_studio_brands` and `recording_studio_attachable`.
 2. Run the install and migration generators above, then `bin/rails db:migrate`.
-3. Add `"RecordingStudioBrands::Brand"`, `"RecordingStudioAttachable::Attachment"`, `"RecordingStudioAttachable::Library"`, and `"RecordingStudioAttachable::Placement"` to `config.recordable_types`.
+3. Add `"RecordingStudioBrands::Brand"` and `"RecordingStudioAttachable::Attachment"` to `config.recordable_types`.
 4. Include `RecordingStudio::Capabilities::Brand.to(allows: :one)` or `allows: :many` on each parent class that should hold brands.
 5. Rebuild Tailwind so the brand screens pick up Flatpack classes.
 
@@ -233,12 +231,13 @@ That runs the engine tests and the dummy app. The dummy covers one and many moun
 | Ruby | 3.3+ |
 | Rails | `~> 8.1.0` |
 | Recording Studio | `>= 6.3.0`, `< 7` in the gemspec. dummy GitHub tag `v6.3.0`. |
-| Accessible | `~> 0.13`. dummy GitHub tag `v0.18.0`. |
-| Attachable | `~> 0.15`. dummy GitHub tag `v0.15.0`. |
-| Trashable | Query-only for Accessible 0.17+. dummy GitHub tag `v0.11.0` (`require: false`). |
-| Root Switchable | Dummy only. dummy GitHub tag `v0.9.0`. |
-| Cache | Dummy only (Root Switchable 0.9+). dummy GitHub tag `v0.5.0`. |
-| Metrics | Attachable 0.14+, Root Switchable 0.7+, Trashable. dummy GitHub tag `v0.2.3`. |
-| Flatpack | `>= 0.1.315`. dummy GitHub tag `v0.1.315` (core 6.3.0 requires this floor). |
+| Accessible | `~> 0.13`. dummy GitHub tag `v0.24.1`. |
+| Attachable | `~> 0.15`. dummy GitHub tag `v0.22.0`. |
+| Trashable | Query-only for Accessible. dummy GitHub tag `v0.12.2` (`require: false`). |
+| Root Switchable | Dummy only. dummy GitHub tag `v0.11.4`. |
+| Cache | Dummy only (Root Switchable 0.11+). dummy GitHub tag `v0.6.2`. |
+| Metrics | Attachable 0.22+, Root Switchable 0.11+, Trashable, Logs. dummy GitHub tag `v0.7.2`. |
+| Admin | `~> 2.0`. dummy GitHub tag `v2.9.0` (Logs dummy tag `v0.7.3`). |
+| Flatpack | `>= 0.1.341`. dummy GitHub tag `v0.1.341`. |
 
 `docs/gem_template/` is the frozen addon template this repo started from. This README is the source of truth for Brand.

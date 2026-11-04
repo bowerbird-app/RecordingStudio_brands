@@ -27,7 +27,7 @@ class BrandLogoTest < ActionDispatch::IntegrationTest
   test "an editor uploads a logo onto a folder brand" do
     sign_in @owner
 
-    patch logo_path(@nike), params: { logo: image_upload("nike.png", "nike-bytes") }
+    patch logo_path(@nike), params: { logo: image_upload("nike.png") }
 
     assert_redirected_to recording_studio_brands.brand_path(@nike)
     assert_equal "Logo saved.", flash[:notice]
@@ -35,7 +35,7 @@ class BrandLogoTest < ActionDispatch::IntegrationTest
     assert_equal @nike.id, logo.parent_recording_id
     assert_equal [ "logo", "nike.png", "image/png" ],
                  [ logo.recordable.name, logo.recordable.original_filename, logo.recordable.content_type ]
-    assert_equal "nike-bytes", logo.recordable.file.download
+    assert_equal png_bytes, logo.recordable.file.download
   end
 
   test "a logo for the workspace brand returns to the workspace brands screen" do
@@ -52,17 +52,17 @@ class BrandLogoTest < ActionDispatch::IntegrationTest
     patch logo_path(@nike), params: { logo: image_upload("nike-old.png") }
     first_logo = Logo.recording_for(@nike)
 
-    patch logo_path(@nike), params: { logo: image_upload("nike-new.png", "new-bytes") }
+    patch logo_path(@nike), params: { logo: image_upload("nike-new.png") }
 
     logo = Logo.recording_for(@nike)
     assert_equal first_logo.id, logo.id
-    assert_equal "new-bytes", logo.recordable.file.download
+    assert_equal png_bytes, logo.recordable.file.download
     assert_equal [ logo.id ], attachment_ids_under(@nike)
   end
 
   test "revising the brand keeps its logo" do
     sign_in @owner
-    patch logo_path(@nike), params: { logo: image_upload("nike.png", "nike-bytes") }
+    patch logo_path(@nike), params: { logo: image_upload("nike.png") }
     logo = Logo.recording_for(@nike)
 
     revised = @folder.revise(@nike, actor: @owner) do |brand|
@@ -74,7 +74,7 @@ class BrandLogoTest < ActionDispatch::IntegrationTest
     assert_equal @nike.id, revised.id
     assert_equal "Just Do It", RecordingStudio::Recording.find(@nike.id).recordable.tagline
     assert_equal logo, Logo.recording_for(revised)
-    assert_equal "nike-bytes", Logo.recording_for(revised).recordable.file.download
+    assert_equal png_bytes, Logo.recording_for(revised).recordable.file.download
   end
 
   test "a file that is not an image saves no logo and keeps no upload" do
@@ -177,13 +177,28 @@ class BrandLogoTest < ActionDispatch::IntegrationTest
     recording_studio_brands.brand_logo_path(brand_recording)
   end
 
-  def image_upload(filename, bytes = "image-bytes")
+  def pdf_bytes
+    "%PDF-1.1\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n"
+  end
+
+  def image_upload(filename, bytes = png_bytes)
     Rack::Test::UploadedFile.new(StringIO.new(bytes), "image/png", original_filename: filename)
   end
 
   def attach(brand_recording, name, filename, content_type: "image/png")
-    blob = ActiveStorage::Blob.create_and_upload!(io: StringIO.new("#{name}-bytes"), filename:, content_type:)
-    brand_recording.record_attachment_upload(signed_blob_id: blob.signed_id, name:, actor: @owner).tap do |recording|
+    bytes = content_type == "application/pdf" ? pdf_bytes : png_bytes
+    blob = Logo.upload_blob!(
+      io: StringIO.new(bytes),
+      filename:,
+      content_type:,
+      recording: brand_recording,
+      actor: @owner
+    )
+    brand_recording.record_attachment_upload(
+      signed_blob_id: Logo.signed_blob_id_for(blob),
+      name:,
+      actor: @owner
+    ).tap do |recording|
       assert recording, "Attachable refused #{filename}"
     end
   end

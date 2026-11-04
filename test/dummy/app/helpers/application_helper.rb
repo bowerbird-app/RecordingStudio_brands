@@ -6,8 +6,9 @@ module ApplicationHelper
     end
   end
 
-  def dummy_page_nav(title:, back_url: nil, back_label: "Home")
+  def dummy_page_nav(title:, subtitle: nil, back_url: nil, back_label: "Home")
     content_for :title, title
+    content_for :subtitle, subtitle if subtitle.present?
     content_for :page_nav_back_url, back_url if back_url.present?
     content_for :page_nav_back_label, back_label
     if back_url.present?

@@ -1,14 +1,7 @@
 <% content_for :title, t("recording_studio.brands.titles.brands") %>
-
-<%= render FlatPack::PageTitle::Component.new(
-  title: t("recording_studio.brands.titles.brands"),
-  subtitle: t("recording_studio.brands.many.subtitle")
-) do |title| %>
-  <% if can_edit?(@parent) %>
-    <% title.slot do %>
-      <%= render FlatPack::Button::Component.new(text: t("recording_studio.brands.actions.add_brand_plus"), style: :primary, href: new_recording_brand_path(@parent)) %>
-    <% end %>
-  <% end %>
+<% content_for :subtitle, t("recording_studio.brands.many.subtitle") %>
+<% if can_edit?(@parent) %>
+  <% register_page_nav t("recording_studio.brands.actions.add_brand_plus"), new_recording_brand_path(@parent), role: :primary %>
 <% end %>
 
 <%= render "recording_studio_brands/brands/list_frame" do %>

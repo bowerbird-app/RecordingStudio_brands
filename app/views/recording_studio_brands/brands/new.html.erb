@@ -1,9 +1,5 @@
 <% content_for :title, t("recording_studio.brands.titles.add_brand") %>
+<% content_for :subtitle, t("recording_studio.brands.new.subtitle") %>
 <% flat_pack_page_nav(round: true, style: :default, anchor_href: recording_brands_path(@parent)) %>
-
-<%= render FlatPack::PageTitle::Component.new(
-  title: t("recording_studio.brands.titles.add_brand"),
-  subtitle: t("recording_studio.brands.new.subtitle")
-) %>
 
 <%= render "recording_studio_brands/brands/form", brand: @brand, url: recording_brands_path(@parent), method: :post %>

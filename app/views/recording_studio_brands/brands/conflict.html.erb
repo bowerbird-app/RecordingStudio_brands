@@ -1,7 +1,6 @@
 <% content_for :title, t("recording_studio.brands.titles.brands") %>
+<% content_for :subtitle, @parent.name %>
 <% type = @parent.type_label.downcase %>
-
-<%= render FlatPack::PageTitle::Component.new(title: t("recording_studio.brands.titles.brands"), subtitle: @parent.name) %>
 
 <%= render FlatPack::Alert::Component.new(
   title: t("recording_studio.brands.conflict.title", type:),

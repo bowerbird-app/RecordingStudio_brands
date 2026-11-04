@@ -5,13 +5,13 @@
 - Ruby 3.3 or newer
 - Rails 8.1 or newer
 - Recording Studio 6.x (`>= 6.3.0`, `< 7` in the gemspec; dummy GitHub tag `v6.3.0`)
-- Accessible dummy tag `v0.18.0` and Root Switchable dummy tag `v0.9.0`
-- Admin gemspec `~> 2.0` (dummy GitHub tag `v2.3.2`)
-- Trashable dummy tag `v0.11.0` (`require: false`; query-only for Accessible 0.17+)
-- Cache dummy tag `v0.5.0` (required by Root Switchable 0.9+)
-- Metrics dummy tag `v0.2.3` (required by Admin 2.3+, Attachable 0.14+, Root Switchable 0.7+, Trashable)
-- Attachable dummy tag `v0.15.0` (unchanged; do not bump Attachable from this gem)
-- FlatPack dummy tag `v0.1.315` (core 6.3.0 requires `flat_pack >= 0.1.315`)
+- Accessible dummy tag `v0.24.1` and Root Switchable dummy tag `v0.11.4`
+- Admin gemspec `~> 2.0` (dummy GitHub tag `v2.9.0`; pulls Logs dummy tag `v0.7.3`)
+- Trashable dummy tag `v0.12.2` (`require: false`; query-only for Accessible)
+- Cache dummy tag `v0.6.2` (required by Root Switchable 0.11+)
+- Metrics dummy tag `v0.7.2` (required by Admin 2.9+, Attachable 0.22+, Root Switchable 0.11+, Trashable, Logs)
+- Attachable dummy tag `v0.22.0` (core-6 line)
+- FlatPack dummy tag `v0.1.341` (gemspec floor `>= 0.1.341`)
 - Public RubyGems and GitHub access for dependency installation
 
 ## Installing catalogue fields (0.4.0+)
