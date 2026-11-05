@@ -34,8 +34,8 @@ RecordingStudioAttachable.configure do |config|
   #   xlarge: { resize_to_limit: [2400, 2400] }
   # }
 
-  # Use the gem's blank layout by default, or set a host app layout like "application".
-  config.layout = :blank
+  # Leave layout unset so screens use Recording Studio core's Default Layout.
+  # config.layout = "application"
   config.auth_roles = {
     view: :view,
     upload: :edit,

@@ -18,9 +18,14 @@ module RecordingStudioBrands
     # Attachable returns nil instead of raising when it refuses the file, so
     # the blob uploaded here would otherwise stay in storage unattached.
     def save_logo(file)
-      blob = ActiveStorage::Blob.create_and_upload!(io: file, filename: file.original_filename,
-                                                    content_type: file.content_type)
-      saved = record_logo(blob.signed_id)
+      blob = Logo.upload_blob!(
+        io: file,
+        filename: file.original_filename,
+        content_type: file.content_type,
+        recording: @brand_recording,
+        actor: brands_actor
+      )
+      saved = record_logo(Logo.signed_blob_id_for(blob))
       blob.purge unless saved
       saved
     end

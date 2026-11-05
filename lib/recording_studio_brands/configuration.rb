@@ -3,13 +3,18 @@
 module RecordingStudioBrands
   class Configuration
     attr_accessor :authentication_method, :current_actor_method, :mount_path
-    attr_reader :hooks
+    attr_reader :hooks, :layout
 
     def initialize
       @authentication_method = :authenticate_user!
       @current_actor_method = :current_user
       @mount_path = "/recording_studio_brands"
+      @layout = nil
       @hooks = RecordingStudio::Hooks.new
+    end
+
+    def layout=(value)
+      @layout = RecordingStudio::Layout.accept(value)
     end
 
     def to_h
@@ -17,6 +22,7 @@ module RecordingStudioBrands
         authentication_method: authentication_method,
         current_actor_method: current_actor_method,
         mount_path: mount_path,
+        layout: layout,
         hooks_registered: hooks.instance_variable_get(:@registry).transform_values(&:size)
       }
     end

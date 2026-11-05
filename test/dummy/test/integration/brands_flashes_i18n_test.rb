@@ -33,7 +33,7 @@ class BrandsFlashesI18nTest < ActionDispatch::IntegrationTest
     sign_in @owner
 
     patch recording_studio_brands.brand_logo_path(@brand), params: {
-      logo: Rack::Test::UploadedFile.new(StringIO.new("nike-bytes"), "image/png", original_filename: "nike.png")
+      logo: png_upload("nike.png")
     }
 
     assert_redirected_to recording_studio_brands.brand_path(@brand)

@@ -1,14 +1,10 @@
-<% dummy_page_nav(title: "Config", back_url: root_path) %>
+<% dummy_page_nav(title: "Config", subtitle: "Point the screens at the host's sign-in, then choose one or many on each parent.", back_url: root_path) %>
 
-<div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(
-    title: "Config",
-    subtitle: "Point the screens at the host's sign-in, then choose one or many on each parent.",
-    variant: :h1
-  ) %>
+<div class="flex w-full min-w-0 max-w-full flex-col gap-6 overflow-x-auto">
 
   <%= render FlatPack::CodeBlock::Component.new(
     language: :ruby,
+    wrap: true,
     code: <<~'CODE'
       RecordingStudioBrands.configure do |config|
         config.authentication_method = :authenticate_user!
