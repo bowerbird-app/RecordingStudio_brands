@@ -26,3 +26,5 @@ Save a brand with the parent recording's `record` method and pass `parent_record
 Trash, duplicate, and manual ordering stay off. A trashed brand still fills a one mount, so restoring it cannot leave two brands there.
 
 This gem does not implement Company, Person, Location, Press Centre, or Press Kit. Brand is not tied to a root or a Workspace.
+
+When the host also mounts Recording Studio API, Brand index, show, create, and update register themselves. MCP uses that same registration. Accessible roles stay the same as the screens.

@@ -112,6 +112,19 @@ Screens call Accessible with the signed-in actor. A viewer can open a brand. Add
 
 The engine defaults to `authenticate_user!` and `current_user`. Override both in `config/initializers/recording_studio_brands.rb` when the host uses different method names.
 
+## API and MCP
+
+When Recording Studio API is loaded, this gem registers Brand for index, show, create, and update. It does not register destroy. Create and update call `parent.record` and `parent.revise` with the same slug parent fields the screens set. Authorization is Accessible: `:view` to list and show, `:edit` to create and update. Logo stays on Attachable. MCP exposes the same registration; this gem does not add an MCP adapter.
+
+```text
+GET    /recording_studio_api/api/v1/brands
+POST   /recording_studio_api/api/v1/brands
+GET    /recording_studio_api/api/v1/brands/:id
+PATCH  /recording_studio_api/api/v1/brands/:id
+```
+
+Index accepts `filter[slug]`, `filter[name]`, and `filter[website_url]` (or the same keys at the query root) and resolves them with `RecordingStudioBrands::Identity.find_brand_recording`.
+
 Brand screens include `RecordingStudio::ControllerLayout` and call `recording_studio_layout { RecordingStudioBrands.configuration.layout }`. Leave `config.layout` unset (`nil`) so Recording Studio core’s Default Layout applies. Set a layout name, `false`, or a `call(controller:)` callable to override this surface only.
 
 ## Admin
@@ -222,7 +235,7 @@ From the repository root:
 bundle exec rake test:all
 ```
 
-That runs the engine tests and the dummy app. The dummy covers one and many mounts, the create guard, revise, validation, the type string, the logo, inherited access, and the home page.
+That runs the engine tests and the dummy app. The dummy covers one and many mounts, the create guard, revise, validation, the type string, the logo, inherited access, the home page, and Brand API 401/403/200.
 
 ## Dependencies
 
@@ -238,6 +251,7 @@ That runs the engine tests and the dummy app. The dummy covers one and many moun
 | Cache | Dummy only (Root Switchable 0.11+). dummy GitHub tag `v0.6.2`. |
 | Metrics | Attachable 0.22+, Root Switchable 0.11+, Trashable, Logs. dummy GitHub tag `v0.7.2`. |
 | Admin | `~> 2.0`. dummy GitHub tag `v2.9.0` (Logs dummy tag `v0.7.3`). |
+| API | Dummy and gem test dependency. dummy GitHub tag `v0.17.1` (Moveable `v4.1.1`). |
 | Flatpack | `>= 0.1.341`. dummy GitHub tag `v0.1.341`. |
 
 `docs/gem_template/` is the frozen addon template this repo started from. This README is the source of truth for Brand.

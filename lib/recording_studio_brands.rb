@@ -32,3 +32,4 @@ module RecordingStudioBrands
 end
 
 require "recording_studio/capabilities/brand"
+require "recording_studio_brands/api"

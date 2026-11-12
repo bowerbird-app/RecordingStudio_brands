@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-12
+
+### Added
+
+- Brand index, show, create, and update on Recording Studio API when that gem is loaded. Create and update use the same `parent.record` / `parent.revise` path as the screens. There is no destroy, trash, duplicate, logo, or `:brand` capability action.
+- Serializer keys are `Brand::FIELDS` plus `active` and `metadata`. Index can find a current brand by slug, name, or website through `Identity.find_brand_recording`.
+- MCP hosts see the same Brand surface because MCP wraps the API registration. This gem does not add MCP code.
+
+### Upgrade notes
+
+1. Bump to `recording_studio_brands` `0.6.0`. No schema change.
+2. Hosts that already mount Recording Studio API get Brand at `/recording_studio_api/api/v1/brands` after this gem loads. Grant Accessible roles the same way as the screens (`:view` to list and show, `:edit` to create and update).
+3. This gem still does not depend on Recording Studio API. Hosts without that gem keep the UI only.
+
 ## [0.5.0] - 2026-11-04
 
 ### Changed
@@ -202,7 +216,8 @@ Tag `v0.4.1` points at `main` (`28f3f60`). `VERSION` on that commit stayed `0.4.
 
 Company, Person, Location, Press Centre, and Press Kit are not part of this gem. Trash, duplicate, and manual ordering stay off.
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/bowerbird-app/RecordingStudio_brands/compare/v0.4.0...v0.4.1
