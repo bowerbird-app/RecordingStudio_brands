@@ -19,7 +19,7 @@ class BrandsApiTest < ActionDispatch::IntegrationTest
 
     Current.actor = @owner
     @brand = record_brand(@workspace, "Acme Coffee")
-    @foreign_brand = record_brand(@other, "Secret Roast", actor: other_owner)
+    @foreign_brand = record_brand(@other, "Acme Coffee", actor: other_owner)
   end
 
   teardown do
@@ -36,9 +36,9 @@ class BrandsApiTest < ActionDispatch::IntegrationTest
 
     get path, headers: bearer(view_token)
     assert_response :success
-    names = JSON.parse(response.body).fetch("records").map { |record| record.fetch("name") }
-    assert_includes names, "Acme Coffee"
-    refute_includes names, "Secret Roast"
+    listed_ids = JSON.parse(response.body).fetch("records").map { |record| record.fetch("id") }
+    assert_includes listed_ids, @brand.id
+    refute_includes listed_ids, @foreign_brand.id
 
     get "#{path}/#{@brand.id}", headers: bearer(view_token)
     assert_response :success
@@ -47,13 +47,13 @@ class BrandsApiTest < ActionDispatch::IntegrationTest
     assert_equal true, shown.fetch("active")
     assert_equal({}, shown.fetch("metadata"))
 
-    get "#{path}?filter[slug]=acme-coffee", headers: bearer(view_token)
+    get "#{path}?filter[slug]=#{@brand.recordable.slug}", headers: bearer(view_token)
     assert_response :success
-    assert_equal ["Acme Coffee"], JSON.parse(response.body).fetch("records").map { |record| record.fetch("name") }
+    assert_equal [@brand.id], JSON.parse(response.body).fetch("records").map { |record| record.fetch("id") }
 
     get "#{path}?filter[name]=ACME COFFEE", headers: bearer(view_token)
     assert_response :success
-    assert_equal ["Acme Coffee"], JSON.parse(response.body).fetch("records").map { |record| record.fetch("name") }
+    assert_equal [@brand.id], JSON.parse(response.body).fetch("records").map { |record| record.fetch("id") }
 
     get "#{path}/#{@foreign_brand.id}", headers: bearer(view_token)
     assert_response :not_found

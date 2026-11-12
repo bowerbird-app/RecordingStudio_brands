@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Brand index, show, create, and update on Recording Studio API when that gem is loaded. Create and update use the same `parent.record` / `parent.revise` path as the screens. There is no destroy, trash, duplicate, logo, or `:brand` capability action.
-- Serializer keys are `Brand::FIELDS` plus `active` and `metadata`. Index can find a current brand by slug, name, or website through `Identity.find_brand_recording`.
+- Serializer keys are `Brand::FIELDS` plus `active` and `metadata`. Index can find current brands by slug, name, or website through `Identity.brand_lookup_scope`, then keeps only recordings in the grant's Accessible scope.
 - MCP hosts see the same Brand surface because MCP wraps the API registration. This gem does not add MCP code.
 
 ### Upgrade notes

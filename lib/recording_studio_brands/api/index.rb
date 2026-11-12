@@ -6,24 +6,21 @@ module RecordingStudioBrands
       private
 
       def filtered_recordings
-        identity_recording = identity_brand_recording
-        return super if identity_recording.nil? && !identity_lookup_requested?
+        identity_recordings = identity_scoped_recordings
+        return super if identity_recordings.nil?
 
-        relation = scoped_recordings.where(recordable_type: recordable_type)
-        return relation.none if identity_recording.nil?
-
-        relation.where(id: identity_recording.id)
+        identity_recordings
       end
 
-      def identity_lookup_requested?
-        identity_lookup_args.values.any?(&:present?)
-      end
-
-      def identity_brand_recording
+      def identity_scoped_recordings
         args = identity_lookup_args
         return if args.values.all?(&:blank?)
 
-        Identity.find_brand_recording(**args, parent_recording: identity_parent_recording)
+        lookup = Identity.brand_lookup_scope(**args, parent_recording: identity_parent_recording)
+        relation = scoped_recordings.where(recordable_type: recordable_type)
+        return relation.none if lookup.nil?
+
+        relation.where(id: lookup.pluck("recording_studio_recordings.id"))
       end
 
       def identity_lookup_args
